@@ -1,0 +1,6 @@
+
+declare string as output = Execute("ls -l");
+
+Println("Output:");
+Println(output);
+

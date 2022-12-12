@@ -1,0 +1,104 @@
+declare string as TEXT = "This is a sTRing.";
+lock TEXT;
+
+Println();
+
+declare string as str = TEXT;
+Println("Converting '" + str + "' to upper-case: '" + ToUpperCase(str) + "'");
+str = TEXT;
+Println("Converting '" + str + "' to lower-case: '" + ToLowerCase(str) + "'");
+
+Println();
+
+str = TEXT;
+Print("Is '" + str + "' all upper-case: ");
+if IsUpperCase(str) then
+    Println("YES");
+else
+    Println("NO");
+
+str = ToUpperCase(TEXT);
+Print("Is '" + str + "' all upper-case: ");
+if IsUpperCase(str) then
+    Println("YES");
+else
+    Println("NO");
+
+str = TEXT;
+Print("Is '" + str + "' all lower-case: ");
+if IsLowerCase(str) then
+    Println("YES");
+else
+    Println("NO");
+
+str = ToLowerCase(TEXT);
+Print("Is '" + str + "' all lower-case: ");
+if IsLowerCase(str) then
+    Println("YES");
+else
+    Println("NO");
+
+Println();
+
+Println('Searching for "is" in the string "' + TEXT + '"...');
+begin
+    declare integer as i = 0;
+    
+    while (i != STRINVALID) do
+        begin
+            i = StrFind(TEXT, "is", i, `CASE_SENSITIVE);
+            if (STRINVALID != i) then
+                begin
+                    Println("    'is' found at " + i);
+                    i = i + 1;
+                end;
+        end;
+end;
+
+Newln();
+
+Println("Tokenizing \"" + TEXT + "\" on ' ' or '.'...");
+begin
+    declare integer as i = 0;
+    
+    while (i != STRINVALID) do
+        begin
+            declare integer as j = StrFindNextOf(TEXT, " .", i, CASE_SENSITIVE);
+            lock j;
+            
+            if (STRINVALID != j) then
+                begin
+                    Println("    tkn: " + StrMiddle(TEXT, i, j - i));
+                    i = j + 1;
+                end;
+            else
+                i = j;
+        end;
+end;
+
+Println();
+
+Println("Replacing 'is' with '123' in '" + TEXT + "'...");
+Println("    '" + StrReplaceAll(TEXT, "is", "123", CASE_SENSITIVE) + "'");
+
+Println();
+
+Println("Replacing 'Is' with '456' in '" + TEXT + "', case-insensitive...");
+Println("    '" + StrReplaceAll(TEXT, "Is", "456", CASE_INSENSITIVE) + "'");
+
+Println();
+
+Print("Does 'This is a string.' begin with 'this', case-sensitive...");
+if StrBeginsWith("This is a sting.", "this", CASE_SENSITIVE) then
+    Println("MATCH");
+else
+    Println("no match");
+
+Print("Does 'This is a string.' begin with 'this', case-insensitive...");
+if StrBeginsWith("This is a sting.", "this", CASE_INSENSITIVE) then
+    Println("MATCH");
+else
+    Println("no match");
+
+Println();
+

@@ -1,0 +1,22 @@
+declare integer as i;
+
+declare reference fstruct = FILESYS_GetFileInfo("/home/cbuck/sdcard/dish/dish/src/main.cpp");
+Println('Size of "' + fstruct.Name + '": ' + fstruct.Size + ' bytes.');
+
+declare reference pathtree = FILESYS_ReadLocation("/home/cbuck/sdcard/dish", true);
+FILESYS_PrintPathTree(pathtree);
+
+Newln();
+
+declare reference filelist = FILESYS_ReadFiles("/home/cbuck/sdcard/dish", true);
+for i = filelist.start to filelist.finish
+    Println(filelist[i]);
+
+Newln();
+
+declare reference dirlist = FILESYS_ReadDirectories("/home/cbuck/sdcard/dish", true);
+for i = dirlist.start to dirlist.finish
+    Println(dirlist[i]);
+
+Newln();
+

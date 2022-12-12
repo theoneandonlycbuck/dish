@@ -1,0 +1,159 @@
+
+declare type array[0 to 2] of real as Vector3D;
+
+declare integer as VEC_X = 0;
+lock VEC_X;
+declare integer as VEC_Y = 1;
+lock VEC_Y;
+declare integer as VEC_Z = 2;
+lock VEC_Z;
+
+declare integer as VEC_R = 0;
+lock VEC_R;
+declare integer as VEC_G = 1;
+lock VEC_G;
+declare integer as VEC_B = 2;
+lock VEC_B;
+
+#
+#
+#
+declare function MakeVector3D(&x, &y, &z)
+    begin
+        declare Vector3D as V;
+        
+        V[0] = x;
+        V[1] = y;
+        V[2] = z;
+        
+        return V;
+    end;
+ 
+#
+#
+#   
+declare function V3D_Neg(&V)
+    return MakeVector3D(
+        -V[0],
+        -V[1],
+        -V[2]
+    );
+
+#
+#
+#
+declare function V3D_Add(&opr1, &opr2)
+    return MakeVector3D(
+        opr1[0] + opr2[0],
+        opr1[1] + opr2[1],
+        opr1[2] + opr2[2]
+    );
+
+#
+#
+#
+declare function V3D_Sub(&opr1, &opr2)
+    return MakeVector3D(
+        opr1[0] - opr2[0],
+        opr1[1] - opr2[1],
+        opr1[2] - opr2[2]
+    );
+
+#
+#
+#
+declare function V3D_Mul(&opr1, &opr2)
+    if (IsReal(opr1) or IsInteger(opr1)) then
+        return MakeVector3D(
+            opr1 * opr2[0],
+            opr1 * opr2[1],
+            opr1 * opr2[2]
+        );
+    
+    else if (IsReal(opr2) or IsInteger(opr2)) then
+        return MakeVector3D(
+            opr1[0] * opr2,
+            opr1[1] * opr2,
+            opr1[2] * opr2
+        );
+    
+    else
+        return MakeVector3D(
+            opr1[0] * opr2[0],
+            opr1[1] * opr2[1],
+            opr1[2] * opr2[2]
+        );
+
+#
+#
+#
+declare function V3D_Div(&opr1, &opr2)
+    if (IsReal(opr1) or IsInteger(opr1)) then
+        return MakeVector3D(
+            opr1 / opr2[0],
+            opr1 / opr2[1],
+            opr1 / opr2[2]
+        );
+    
+    else if (IsReal(opr2) or IsInteger(opr2)) then
+        return MakeVector3D(
+            opr1[0] / opr2,
+            opr1[1] / opr2,
+            opr1[2] / opr2
+        );
+    
+    else
+        return MakeVector3D(
+            opr1[0] / opr2[0],
+            opr1[1] / opr2[1],
+            opr1[2] / opr2[2]
+        );
+ 
+#
+#
+#       
+declare function V3D_SquaredLength(&V)
+    return (`Sqr(V[0]) + `Sqr(V[1]) + `Sqr(V[2]));
+ 
+#
+#
+#       
+declare function V3D_Length(&V)
+    return `Sqrt(V3D_SquaredLength(V));
+
+#
+#
+#
+declare function V3D_MakeUnitVector(&V)
+    begin
+        declare reference mag = V3D_Length(V);
+        
+        V[0] = V[0] / mag;
+        V[1] = V[1] / mag;
+        V[2] = V[2] / mag;
+        
+        return V;
+    end;
+
+#
+#
+#    
+declare function V3D_Dot(&V1, &V2)
+    return ((V1[0] * V2[0]) + (V1[1] * V2[1]) + (V1[2] * V2[2]));
+
+#
+#
+#   
+declare function V3D_Cross(&V1, &V2)
+    return MakeVector3D(
+        (V1[1] * V2[2]) - (V1[2] * V2[1]),
+        -(V1[0] * V2[2]) - (V1[2] * V2[0]),
+        (V1[0] * V2[1]) - (V1[1] * V2[0])
+    );
+
+#
+#
+#    
+declare function V3D_UnitVector(&V)
+    return V3D_Div(V, V3D_Length(V));
+

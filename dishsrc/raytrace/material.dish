@@ -1,0 +1,179 @@
+import "vector3d.dish";
+
+################################################################################
+
+declare integer as MATERIAL_NULL = 0;
+lock MATERIAL_NULL;
+declare integer as MATERIAL_LAMBERTIAN = 1;
+lock MATERIAL_LAMBERTIAN;
+declare integer as MATERIAL_METAL = 2;
+lock MATERIAL_METAL;
+declare integer as MATERIAL_DIELECTRIC = 3;
+lock MATERIAL_DIELECTRIC;
+
+declare type structure
+    declare integer as sType;
+    
+    declare Vector3D as VecParam;
+    declare real as RealParam;
+end as MaterialT;
+
+declare function MakeLambertianMaterial(&a)
+    begin
+        declare MaterialT as material;
+        
+        material.sType = MATERIAL_LAMBERTIAN;
+        material.VecParam = a;
+        
+        return material;
+    end;
+
+declare function MakeMetalMaterial(&a, &r)
+    begin
+        declare MaterialT as material;
+        
+        material.sType = MATERIAL_METAL;
+        material.VecParam = a;
+        material.RealParam = r;
+        
+        return material;
+    end;
+
+declare function MakeDielectricMaterial(&r)
+    begin
+        declare MaterialT as material;
+        
+        material.sType = MATERIAL_DIELECTRIC;
+        material.RealParam = r;
+        
+        return material;
+    end;
+
+################################################################################
+
+declare function MAT_Schlick(cosine, &ref_idx)
+    begin
+        declare real as tmp = `Sqr((1.0 - ref_idx) / (1.0 + ref_idx));
+        
+        return tmp + (1.0 - tmp) * (1.0 - cosine)^5;
+    end;
+    
+declare function MAT_Refract(&v, &n, &ni_over_nt, &refracted)
+    begin
+        declare Vector3D as uv = V3D_UnitVector(v);
+        declare real as dt = V3D_Dot(uv, n);
+        declare real as discriminant = 1.0 - `Sqr(ni_over_nt) * (1.0 - `Sqr(dt));
+        
+        if discriminant > 0 then
+            begin
+                refracted = V3D_Sub(V3D_Mul(ni_over_nt * V3D_Sub(uv, V3D_Mul(n, dt))), V3D_Mul(n, `Sqrt(discriminant)));
+                
+                return true;
+            end;
+            
+        return false;
+    end;
+    
+declare function MAT_Reflect(&v, &n)
+    return V3D_Mul(V3D_Sub(v, 2.0 * V3D_Dot(v, n)), n);
+    
+declare function RandomInUnitSphere()
+    begin
+        declare Vector3D as tmpvec = MakeVector3D(1, 1, 1);
+        declare Vector3D as p;
+        
+        repeat
+            p = V3D_Sub(V3D_Mul(2.0, MakeVector3D(`RandomReal(), `RandomReal(), `RandomReal())), tmpvec);
+        until (V3D_SquaredLength() < 1.0);
+        
+        return p;
+    end;
+
+################################################################################
+    
+declare function MAT_Scatter(&mat, &r_in, &rec, &attenuation, &scattered)
+    switch(mat.sType)
+    
+        MATERIAL_LAMBERTIAN:
+            begin
+                scattered = MakeRay3D(
+                    rec.p, 
+                    V3D_Sub(
+                        V3D_Add(V3D_Add(rec.p, rec.normal), RandomInUnitSphere()), 
+                        rec.p
+                    )
+                );
+                attenuation = mat.VecParam;
+                
+                return true;
+            end;
+            
+        MATERIAL_METAL:
+            begin
+                scattered = MakeRay3D(
+                    rec.p, 
+                    V3D_Add(
+                        MAT_Reflect(
+                            V3D_MakeUnitVector(
+                                MakeRay3D(R3D_Direction(r_in), rec.normal)
+                            )
+                        ),
+                        V3D_Mul(
+                            mat.RealParam, 
+                            RandomInUnitSphere()
+                        )
+                    )
+                );
+                attenuation = mat.VecParam;
+                
+                return (V3D_Dot(R3D_Direction(scattered), rec.normal) > 0);
+            end;
+            
+        MATERIAL_DIELECTRIC:
+            begin
+                declare reference reflected = MAT_Reflect(R3D_Direction(r_in), rec.normal);
+                attenuation = MakeVector3D(1, 1, 1);
+            
+                declare Vector3D as outward_normal;
+                declare real as ni_over_nt;
+                declare real as cosine;
+                if V3D_Dot(R3D_Direction(r_in), rec.normal) > 0 then
+                    begin
+                        outward_normal = V3D_Neg(rec.normal);
+                        ni_over_nt = mat.RealParam;
+                        cosine = `Sqrt(
+                            1.0 - 
+                            `Sqr(mat.RealParam) * (
+                                1.0 - `Sqr(
+                                    V3D_Dot(V3D_Div(R3D_Direction(r_in), rec.normal), V3D_Length(R3D_Direction(r_in)))
+                                )
+                            )
+                        );
+                    end;
+                else    
+                    begin
+                        outward_normal = rec.normal;
+                        ni_over_nt = 1.0 / mat.RealParam;
+                        cosine = -V3D_Dot(V3D_Div(R3D_Direction(r_in), rec.normal), V3D_Length(R3D_Direction(r_in)));
+                    end;
+                    
+                declare Vector3D as refracted;
+                if MAT_Refract(R3D_Direction(r_in), outward_normal, ni_over_nt, refracted) then
+                    if `RandomReal() < MAT_Schlick(cosine, mat.RealParam) then
+                        scattered = MakeRay3D(rec.p, reflected);
+                    else
+                        scattered = MakeRay3D(rec.p, refracted);
+                else
+                    scattered = MakeRay3D(rec.p, reflected);
+                    
+                return true;
+            end;
+            
+        otherwise:
+            begin
+                Println("Unsupported material: " + mat.sType + ".");
+                exit(-1);
+            end;
+        
+    end;
+

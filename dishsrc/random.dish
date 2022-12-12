@@ -1,0 +1,39 @@
+
+declare function Roll(&d, n)
+    begin
+        declare integer as roll = 0;
+        
+        while (n > 0) do
+            begin
+                `Inc(roll, RandomInteger(1, d));
+                `Dec(n);
+            end;
+            
+        return roll;
+    end;
+    
+declare function D6(&n)
+    return Roll(6, n);
+    
+declare function D6()
+    return D6(1);
+    
+declare integer as i;
+
+for i = 1 to 25
+    Println(
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16) + "   " + 
+        D6(16)
+    );
+    
+Newln();
+Newln();
+

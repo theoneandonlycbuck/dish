@@ -1,0 +1,79 @@
+#!../dish
+
+declare function MatrixInfo(&M)
+    return "(st=" + M.start + ", fin=" + M.finish + ", len=" + M.length + ")";
+
+declare type CreateMatrixT(4, 4) as Matrix3DT;
+declare Matrix3DT as M;
+
+MatrixInitialize(M);
+
+M[1][1] = 1;
+M[2][2] = 2;
+M[3][3] = 3;
+M[4][4] = 4;
+
+declare Matrix3DT as N = M;
+
+Println();
+Println("A:");
+Println();
+Println("M" + MatrixInfo(M) + ":");
+Println(M);
+Println();
+Println("N" + MatrixInfo(N) + ":");
+Println(N);
+Println();
+
+Println();
+
+Print("M ");
+if MatrixIsEqual(M, N) then 
+    Print("==");
+else
+    Print("!=");
+Println(" N");
+
+Println();
+
+MatrixInitialize(M);
+MatrixInitialize(N);
+
+Println("Det(M) = " + MatrixDeterminant(M));
+N = MatrixInvert(M);
+
+Println();
+Println("B:");
+Println();
+Println("M" + MatrixInfo(M) + ":");
+Println(M);
+Println();
+Println("N" + MatrixInfo(N) + ":");
+Println(N);
+Println();
+
+Print("M ");
+if MatrixIsEqual(M, N) then 
+    Print("==");
+else
+    Print("!=");
+Println(" N");
+
+Println();
+
+Println("M * M:");
+N = MatrixMultiply(M, M);
+Println(MatrixToString(N));
+
+Println();
+
+Println("M + M + M:");
+N = MatrixAdd(M, MatrixAdd(M, M));
+Println(MatrixToString(N));
+
+Println();
+
+Println("N - M:");
+N = MatrixSubtract(N, M);
+Println(MatrixToString(N));
+

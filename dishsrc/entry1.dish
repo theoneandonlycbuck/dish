@@ -1,0 +1,9 @@
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("This is the entry-point!");
+        Println();
+    end;
+    
+Println();
+

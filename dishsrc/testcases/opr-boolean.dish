@@ -1,0 +1,10 @@
+import "libtest.dish";
+
+declare boolean as F = false;
+lock F;
+
+declare boolean as T = true;
+lock T;
+
+
+

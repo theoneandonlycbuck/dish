@@ -1,0 +1,91 @@
+#!../../dish
+    
+################################################################################
+
+declare function IntegerToBinString(&i)
+    return `IntegerToBaseString(i, `BASE_2_DIGITS);
+
+declare function IntegerToOctString(&i)
+    return `IntegerToBaseString(i, `BASE_8_DIGITS);
+
+declare function IntegerToHexString(&i)
+    return `IntegerToBaseString(i, `BASE_16_DIGITS);
+    
+    
+declare function BinStringToInteger(&str)
+    return `BaseStringToInteger(str, `BASE_2_DIGITS);
+    
+declare function OctStringToInteger(&str)
+    return `BaseStringToInteger(str, `BASE_8_DIGITS);
+    
+declare function HexStringToInteger(&str)
+    return `BaseStringToInteger(str, `BASE_16_DIGITS);
+    
+################################################################################
+
+declare function Yield()
+    return Sleep(0);
+    
+################################################################################
+
+if IsEntryPoint() then
+    begin
+    
+        declare function Test(&str, &result, &count, &pass)
+            begin
+                Inc(count);
+            
+                Print(str + ": ");
+                
+                if result then
+                    begin
+                        Inc(pass);
+                        Print("PASS");
+                    end;
+                else
+                    Print("FAIL");
+                    
+                Println();
+            end;
+            
+        declare integer as count = 0;
+        declare integer as pass = 0;
+            
+        Test("IntegerToBinString() - #1", "10000000000000000" == IntegerToBinString(65536), count, pass);
+        Test("IntegerToBinString() - #2", "1111111111111111" == IntegerToBinString(65535), count, pass);
+            
+        Test("IntegerToBinString() - #1", "200000" == IntegerToOctString(65536), count, pass);
+        Test("IntegerToBinString() - #2", "177777" == IntegerToOctString(65535), count, pass);
+            
+        Test("IntegerToBinString() - #1", "10000" == IntegerToHexString(65536), count, pass);
+        Test("IntegerToBinString() - #2", "FFFF" == IntegerToHexString(65535), count, pass);
+            
+        Test("BinStringToInteger() - #1", 65536 == BinStringToInteger("10000000000000000"), count, pass);
+        Test("BinStringToInteger() - #2", 65535 == BinStringToInteger("1111111111111111"), count, pass);
+            
+        Test("OctStringToInteger() - #1", 65536 == OctStringToInteger("200000"), count, pass);
+        Test("OctStringToInteger() - #2", 65535 == OctStringToInteger("177777"), count, pass);
+            
+        Test("HexStringToInteger() - #1", 65536 == HexStringToInteger("10000"), count, pass);
+        Test("HexStringToInteger() - #2", 65535 == HexStringToInteger("FFFF"), count, pass);
+        
+        begin
+            declare integer as tmp = RandomInteger();
+            Test("Round trip, " + tmp + ", Bin", tmp == BinStringToInteger(IntegerToBinString(tmp)), count, pass);
+        end;
+        
+        begin
+            declare integer as tmp = RandomInteger();
+            Test("Round trip, " + tmp + ", Oct", tmp == OctStringToInteger(IntegerToOctString(tmp)), count, pass);
+        end;
+        
+        begin
+            declare integer as tmp = RandomInteger();
+            Test("Round trip, " + tmp + ", Hex", tmp == HexStringToInteger(IntegerToHexString(tmp)), count, pass);
+        end;
+        
+        Println();
+        Println(pass + " out of " + count + " tests passed (" + AsInteger(Round(100.0 * AsReal(pass) / AsReal(count))) + "%).");
+        Println();
+    end;
+

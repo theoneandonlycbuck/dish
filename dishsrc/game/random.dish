@@ -1,0 +1,115 @@
+#
+#   Die-roll function definitions
+#
+
+declare function Roll(&d, n)
+    if n == 1 then
+        return `RandomInteger(1, d);
+    else
+        begin
+            declare integer as roll = 0;
+            
+            while (n > 0) do
+                begin
+                    `Inc(roll, `RandomInteger(1, d));
+                    `Dec(n);
+                end;
+                
+            return roll;
+        end;
+    
+declare function D2(&n)
+    return Roll(2, n);
+    
+declare function D2()
+    return D2(1);
+    
+declare function D4(&n)
+    return Roll(4, n);
+    
+declare function D4()
+    return D4(1);
+    
+declare function D6(&n)
+    return Roll(6, n);
+    
+declare function D6()
+    return D6(1);
+    
+declare function D8(&n)
+    return Roll(8, n);
+    
+declare function D8()
+    return D8(1);
+    
+declare function D10(&n)
+    return Roll(10, n);
+    
+declare function D10()
+    return D10(1);
+    
+declare function D12(&n)
+    return Roll(12, n);
+    
+declare function D12()
+    return D12(1);
+    
+declare function D20(&n)
+    return Roll(20, n);
+    
+declare function D20()
+    return D20(1);
+    
+declare function D100(&n)
+    return Roll(100, n);
+    
+declare function D100()
+    return D100(1);
+    
+declare function PrintRandom()
+    begin
+        declare integer as i;
+        declare integer as j;
+        
+        for j = 0 to 10
+            begin
+                for i = 0 to 5
+                    Print(LeftJustify(20, AsString(RandomInteger())) + "  ");
+                    
+                Newln();
+            end;
+    end;
+    
+declare function PrintDiceRolls()
+    begin
+        Println(" N     d4     d6     d8    d10    d12    d20   d100");
+        
+        declare integer as n;
+        for n = 1 to 10
+            begin
+                Println(
+                    RightJustify(2, n) + "  " + 
+                    RightJustify(5, D4(n)) + "  " + 
+                    RightJustify(5, D6(n)) + "  " + 
+                    RightJustify(5, D8(n)) + "  " + 
+                    RightJustify(5, D10(n)) + "  " + 
+                    RightJustify(5, D12(n)) + "  " + 
+                    RightJustify(5, D20(n)) + "  " + 
+                    RightJustify(5, D100(n))
+                );
+            end;
+    end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        PrintDiceRolls();
+        Println();
+        
+        Terminate();
+    end;
+

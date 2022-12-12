@@ -1,0 +1,107 @@
+Println("Integer/Integer:");
+Newln();
+
+#
+#   Add op
+#
+
+Println("    Add (+)");
+Println("         0   1   2   3   4   5   6   7   8   9  10");
+Println("    +-+-------------------------------------------+");
+
+begin
+    declare integer as j;
+
+    for j = 0 to 10
+        begin
+            Print("    " + RightJustify(2, AsString(j)) + "|");
+            
+            declare integer as i;
+            for i = 0 to 10
+                Print(RightJustify(3, AsString(i + j)) + " ");
+        
+            Newln();
+        end;
+end;
+
+
+#
+#   Sub op
+#
+
+Newln();
+Newln();
+
+Println("    Sub (-)");
+Println("         0   1   2   3   4   5   6   7   8   9  10");
+Println("    +-+-------------------------------------------+");
+
+begin
+    declare integer as j;
+
+    for j = 0 to 10
+        begin
+            Print("    " + RightJustify(2, AsString(j)) + "|");
+            
+            declare integer as i;
+            for i = 0 to 10
+                Print(RightJustify(3, AsString(i - j)) + " ");
+        
+            Newln();
+        end;
+end;
+
+
+#
+#   Mul op
+#
+
+Newln();
+Newln();
+
+Println("    Mul (*)");
+Println("         0   1   2   3   4   5   6   7   8   9  10");
+Println("    +-+-------------------------------------------+");
+
+begin
+    declare integer as j;
+
+    for j = 0 to 10
+        begin
+            Print("    " + RightJustify(2, AsString(j)) + "|");
+            
+            declare integer as i;
+            for i = 0 to 10
+                Print(RightJustify(3, AsString(i * j)) + " ");
+        
+            Newln();
+        end;
+end;
+
+
+#
+#   Div op
+#
+
+Newln();
+Newln();
+
+Println("    Div (/)");
+Println("         0   1   2   3   4   5   6   7   8   9  10");
+Println("    +-+-------------------------------------------+");
+
+begin
+    declare integer as j;
+
+    for j = 1 to 10
+        begin
+            Print("    " + RightJustify(2, AsString(j)) + "|");
+            
+            declare integer as i;
+            for i = 0 to 10
+                Print(RightJustify(3, AsString(i / j)) + " ");
+        
+            Newln();
+        end;
+end;
+

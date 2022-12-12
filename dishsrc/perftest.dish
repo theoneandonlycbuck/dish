@@ -1,0 +1,23 @@
+declare function F(&x) 
+    return `Sin(x);
+    
+declare function dFdx(&x) 
+    return `Cos(x);
+    
+declare function G(&x) 
+    return (x * x) + (2.0 * x) - `Cos(x);
+    
+declare function dGdx(&x) 
+    return (2.0 * x) + 2.0 + `Sin(x);
+    
+
+declare real as x;
+declare real as y;
+declare integer as i;
+for i = 1 to 1000000
+    begin
+        `Inc(x, F(i) + dFdx(i / 2.0));
+        `Inc(y, G(i) - dGdx(i / 2.0));
+    end;
+
+

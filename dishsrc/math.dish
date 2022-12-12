@@ -1,0 +1,122 @@
+#
+#   Root-finding function
+#
+
+declare function FindRoots(a, b, c, &r1, &r2)
+    begin
+        declare reference tmp = b * b - 4.0 * a * c;
+        lock tmp;
+        
+        if tmp < 0 then
+            return 0;
+            
+        else if tmp == 0 then
+            begin
+                r1 = -b / (2 * a);
+                
+                return 1;
+            end;
+            
+        else
+            begin
+                r1 = (-b + Sqrt(tmp)) / (2 * a);
+                r2 = (-b - Sqrt(tmp)) / (2 * a);
+                
+                return 2;
+            end;
+            
+        return `NULL;
+    end;
+    
+#
+#  Factorial function
+#
+declare function Factorial(x)
+    begin
+        switch(x)
+            0, 1:
+                return 1;
+                
+            2:
+                return 2;
+                
+            3:
+                return 3 * 2;
+                
+            4:
+                return 4 * 3 * 2;
+                
+            5:
+                return 5 * 4 * 3 * 2;
+                
+            6:
+                return 6 * 5 * 4 * 3 * 2;
+                
+            7:
+                return 7 * 6 * 5 * 4 * 3 * 2;
+                
+            8:
+                return 8 * 7 * 6 * 5 * 4 * 3 * 2;
+                
+            9:
+                return 9 * 8 * 7 * 6 * 5 * 4 * 3 * 2;
+                
+            "10":
+                return 10 * 9 * 8 * 7 * 6 * 5 * 4 * 3 * 2;
+                
+            otherwise:
+                begin
+                    assert(x > 10);
+                
+                    declare integer as fact;
+                    fact = 1;
+                    
+                    while x > 1 do
+                        begin
+                            fact = fact * x;
+                            x = x - 1;
+                        end;
+                        
+                    return fact;
+                end;
+                
+        end;
+    end;
+    
+#
+#   Binomial coefficients
+#
+declare function BinomialCoefficient(&n, &p)
+    return Factorial(n) / (Factorial(p) * Factorial(n - p));
+    
+    
+
+if IsEntryPoint() then
+    begin
+    
+        declare real as a = 1;
+        declare real as b = 0;
+        declare real as c = -1;
+        
+        declare real as root1;
+        declare real as root2;
+        FindRoots(a, b, c, root1, root2);
+
+        Println();
+        Println(
+            "The roots of " + 
+            a + 
+            "*x^2 + " + 
+            b + 
+            "*x + " + 
+            c + 
+            " == 0 occur at x=" + 
+            root1 + 
+            " and x=" + 
+            root2 + 
+            "."
+        );
+        Println();
+    
+    end;
+

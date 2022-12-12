@@ -1,0 +1,79 @@
+declare array[1 to 10] of integer as A;
+declare array[1 to 10] of integer as B;
+
+declare integer as i;
+
+for i = 1 to 10
+    B[i] = 2 * (A[i] = i);
+
+declare array[0 to 9] of integer as C;
+declare array[1 to 10] of integer as D;
+    
+for i = 0 to 9
+#    C[i] = 2 * (D[i+1] = i);
+    C[i] = 2 * (D[i + 1] = i);
+    
+################################################################################
+    
+Println();
+    
+begin 
+    declare reference tmp = Zip(A, B);
+    
+    Println("[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println("  " + AsString(i) + ".  " + AsString(tmp[i].one) + "  " + AsString(tmp[i].two) + "  " + AsString(tmp[i].arrayof[1]) + "  " + AsString(tmp[i].arrayof[2]));
+end;
+    
+Println();
+    
+begin 
+    declare reference tmp = Zip(C, D);
+    
+    Println("[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println("  " + AsString(i) + ".  " + AsString(tmp[i].one) + "  " + AsString(tmp[i].two) + "  " + AsString(tmp[i].arrayof[1]) + "  " + AsString(tmp[i].arrayof[2]));
+end;
+    
+Println();
+    
+begin 
+    declare reference tmp = Zip(ZipValue(100), C, D);
+    
+    Println("[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println("  " + AsString(i) + ".  " + AsString(tmp[i].one) + "  " + AsString(tmp[i].two) + "  " + AsString(tmp[i].three) + "  " + AsString(tmp[i].arrayof[1]) + "  " + AsString(tmp[i].arrayof[2]) + "  " + AsString(tmp[i].arrayof[3]));
+end;
+    
+Println();
+    
+begin 
+    declare reference tmp = Zip(ZipValue(3.14159), C, D);
+    
+    Println("[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println("  " + AsString(i) + ".  " + AsString(tmp[i].one) + "  " + AsString(tmp[i].two) + "  " + AsString(tmp[i].three) + "  " + AsString(tmp[i].arrayof[1]) + "  " + AsString(tmp[i].arrayof[2]) + "  " + AsString(tmp[i].arrayof[3]));
+end;
+    
+Println();
+    
+begin 
+    declare reference tmp = Zip(ZipValue("title: "), C, D);
+    
+    Println("[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println("  " + AsString(i) + ".  " + AsString(tmp[i].one) + "  " + AsString(tmp[i].two) + "  " + AsString(tmp[i].three) + "  " + AsString(tmp[i].arrayof[1]) + "  " + AsString(tmp[i].arrayof[2]) + "  " + AsString(tmp[i].arrayof[3]));
+end;
+    
+Println();
+    
+begin 
+    declare reference tmp = Zip(ZipIncrement(-1), C, D);
+    
+    Println("[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println("  " + AsString(i) + ".  " + AsString(tmp[i].one) + "  " + AsString(tmp[i].two) + "  " + AsString(tmp[i].three) + "  " + AsString(tmp[i].arrayof[1]) + "  " + AsString(tmp[i].arrayof[2]) + "  " + AsString(tmp[i].arrayof[3]));
+end;
+
+Println();
+

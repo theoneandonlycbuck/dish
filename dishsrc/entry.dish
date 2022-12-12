@@ -1,0 +1,6 @@
+#!../../dish
+
+import "entry1.dish";
+
+Println("done!");
+

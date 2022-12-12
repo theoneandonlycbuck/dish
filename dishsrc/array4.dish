@@ -1,0 +1,14 @@
+declare type array [1 to 10] of integer as ArrayT;
+
+declare integer as i;
+
+declare ArrayT as A;
+for i = A.start to A.finish
+    A[i] = i;
+    
+declare ArrayT as B = 12345;
+
+Println("B has " + B.length + " elements:");
+for i = B.start to B.finish
+    Println("   " + B[i]);
+

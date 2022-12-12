@@ -1,0 +1,10 @@
+declare real as x = 3.14;
+declare real as y;
+
+declare function MAT_Schlick(&cosine, &ref_idx)
+    begin
+        declare real as tmp = `Sqr((1.0 - ref_idx) / (1.0 + ref_idx));
+        
+        return tmp + (1.0 - tmp) * (1.0 - cosine)^5;
+    endl;
+

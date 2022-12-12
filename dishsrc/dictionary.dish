@@ -1,0 +1,38 @@
+declare dictionary as D;
+
+declare dictionary as E;
+E["key"] = 54321;
+
+D["this"] = 12345;
+D[12345] = 'this';
+
+Println(D["this"]);
+Println(D[12345]);
+
+Newln();
+
+D["this"] = "that";
+Println(D["this"]);
+
+Newln();
+
+D[E] = "54321";
+Println(D[E]);
+
+Newln();
+
+Println("# Elements in E: " + E.Count);
+Println(E.keys);
+
+Println();
+
+if D.Contains(12345) then
+    Println("D contains the key '12345'.");
+else
+    Println("D does not contain the key '12345'.");
+
+if D.Contains(12346) then
+    Println("D contains the key '12346'.");
+else
+    Println("D does not contain the key '12346'.");
+

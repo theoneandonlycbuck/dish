@@ -1,0 +1,33 @@
+declare integer as minimum;
+minimum = 5;
+
+declare array[minimum to 2 * minimum] of integer as A;
+
+declare type structure
+    declare real as X;
+    declare real as Y;
+end as PointT;
+
+declare PointT as Pt1;
+Pt1.X = 0;
+Pt1.Y = 0;
+lock Pt1;
+
+declare PointT as Pt2;
+Pt2.X = 1;
+Pt2.Y = 1;
+lock Pt2;
+
+declare function Distance(s, e)
+    begin
+        declare integer as xtemp;
+        declare integer as ytemp;
+        
+        xtemp = s.X - e.X;
+        ytemp = s.Y - e.Y;
+        
+        return Sqrt(xtemp * xtemp + ytemp * ytemp);
+    end;
+    
+Println("Distance is " + Distance(Pt1, Pt2));
+

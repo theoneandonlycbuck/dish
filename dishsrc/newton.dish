@@ -1,0 +1,39 @@
+import "math.dish";
+
+declare function Newton(&F, &dF, &EPS, &x, &niter)
+    begin
+        while (`Dec(niter) >= 0) do
+            begin
+                if (`Abs(F(x)) <= EPS) then
+                    return true;
+                
+                x = x - (F(x) / dF(x));
+            end;
+            
+        return (`Abs(F(x)) <= EPS);
+    end;
+
+declare function F(&x)
+    return `Cos(x) - (x * x * x);
+
+declare function dF(&x)
+    return -`Sin(x) - (3 * x * x);
+
+declare real as X0 = 100.5;
+lock X0;
+
+declare integer as MAXITER = 500;
+lock MAXITER;
+
+declare real as root = X0;
+declare integer as iterations = MAXITER;
+
+#if Newton(F_1, dF_1, 0.000001, root, iterations) then    
+if Newton(lambda(&x) return `Cos(x) - (x * x * x);, lambda(&x) return -`Sin(x) - (3 * x * x);, 0.000001, root, iterations) then
+    begin
+        Println("F(x) = " + F(root) + " at " + root + " with x0 = " + X0 + ".");
+        Println("    Found in " + (MAXITER - iterations) + " iterations.");
+    end;
+else
+    Println("Root not found; xn = " + root + ", F(xn) = " + F(root) + ".");
+

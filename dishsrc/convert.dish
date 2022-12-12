@@ -1,0 +1,26 @@
+Newln();
+
+declare integer as DEC = -1234567890;
+lock DEC;
+
+declare string as BIN = IntegerToBaseString(DEC, BASE_2_DIGITS);
+declare string as OCT = IntegerToBaseString(DEC, BASE_8_DIGITS);
+declare string as HEX = IntegerToBaseString(DEC, BASE_16_DIGITS);
+
+Println("X(2) = " + BIN);
+Println("X(8) = " + OCT);
+Println("X(10) = " + DEC);
+Println("X(16) = " + HEX);
+
+Println("X = " + BaseStringToInteger(BIN, BASE_2_DIGITS));
+Println("X = " + BaseStringToInteger(OCT, BASE_8_DIGITS));
+Println("X = " + BaseStringToInteger(DEC, BASE_10_DIGITS));
+Println("X = " + BaseStringToInteger(HEX, BASE_16_DIGITS));
+
+Newln();
+
+Println("Alphabet: " + STRUPPERCASE);
+Println("Alphabet: " + StrReverse(STRUPPERCASE));
+
+Newln();
+

@@ -1,0 +1,395 @@
+##################################
+##
+#   Configuration
+##
+##################################
+
+declare integer as MAZE_X_SIZE = 50;
+lock MAZE_X_SIZE;
+
+declare integer as MAZE_Y_SIZE = 50;
+lock MAZE_Y_SIZE;
+
+declare integer as WINDOW_WIDTH = 800;
+lock WINDOW_WIDTH;
+
+declare integer as WINDOW_HEIGHT = 600;
+lock WINDOW_HEIGHT;
+
+##################################
+##
+#   Maze library
+##
+##################################
+
+###
+#  Directions
+###
+
+declare type integer as DirectionT;
+
+declare DirectionT as DIR_NORTH = 0;
+lock DIR_NORTH;
+
+declare DirectionT as DIR_SOUTH = 1;
+lock DIR_SOUTH;
+
+declare DirectionT as DIR_EAST = 2;
+lock DIR_EAST;
+
+declare DirectionT as DIR_WEST = 3;
+lock DIR_WEST;
+
+declare array[DIR_NORTH to DIR_WEST] of string as DirectionStr;
+DirectionStr[DIR_NORTH] = "North";
+DirectionStr[DIR_SOUTH] = "South";
+DirectionStr[DIR_EAST] = "East";
+DirectionStr[DIR_WEST] = "West";
+lock DirectionStr;
+
+declare array[DIR_NORTH to DIR_WEST] of integer as TurnAround;
+TurnAround[DIR_NORTH] = DIR_SOUTH;
+TurnAround[DIR_SOUTH] = DIR_NORTH;
+TurnAround[DIR_EAST] = DIR_WEST;
+TurnAround[DIR_WEST] = DIR_EAST;
+lock TurnAround;
+
+declare array[DIR_NORTH to DIR_WEST] of integer as TurnRight;
+TurnRight[DIR_NORTH] = DIR_EAST;
+TurnRight[DIR_SOUTH] = DIR_WEST;
+TurnRight[DIR_EAST] = DIR_SOUTH;
+TurnRight[DIR_WEST] = DIR_NORTH;
+lock TurnRight;
+
+declare array[DIR_NORTH to DIR_WEST] of integer as TurnLeft;
+TurnLeft[DIR_NORTH] = DIR_WEST;
+TurnLeft[DIR_SOUTH] = DIR_EAST;
+TurnLeft[DIR_EAST] = DIR_NORTH;
+TurnLeft[DIR_WEST] = DIR_SOUTH;
+lock TurnLeft;
+
+###
+#  Boundary values
+###
+
+declare type integer as BoundaryT;
+
+declare BoundaryT as BOUND_OPEN = 0;
+lock BOUND_OPEN;
+
+declare BoundaryT as BOUND_WALL = 1;
+lock BOUND_WALL;
+
+declare BoundaryT as BOUND_DOOR = 2;
+lock BOUND_DOOR;
+
+###
+#  Maze declarations
+###
+
+declare type structure
+    declare array[DIR_NORTH to DIR_WEST] of BoundaryT as Boundary;
+    declare boolean as Visited;
+end as MazeCellT;
+
+declare type structure
+    declare array[1 to MAZE_Y_SIZE] of array[1 to MAZE_X_SIZE] of MazeCellT as Maze;
+end as MazeT;
+
+declare type structure
+    declare integer as XPos;
+    declare integer as YPos;
+    declare DirectionT as Facing;
+end as LocationT;
+
+####
+
+declare function MAZE_Cell(&maze, &x, &y)
+    return maze.Maze[y][x];
+
+declare function MAZE_CellBoundary(&maze, &x, &y)
+    return MAZE_Cell(maze, x, y).Boundary;
+
+declare function MAZE_CellBoundary(&maze, &x, &y, &dir)
+    return MAZE_CellBoundary(maze, x, y)[dir];
+    
+declare function MAZE_AssignCellBoundary(&maze, &x, &y, &dir, &bound)
+    begin
+        MAZE_CellBoundary(maze, x, y, dir) = bound;
+    
+        switch dir
+            DIR_NORTH:
+                if y > 1 then
+                    MAZE_CellBoundary(maze, x, y - 1, DIR_SOUTH) = bound;
+            
+            DIR_SOUTH:
+                if y < MAZE_Y_SIZE then
+                    MAZE_CellBoundary(maze, x, y + 1, DIR_NORTH) = bound;
+            
+            DIR_EAST:
+                if x < MAZE_X_SIZE then
+                    MAZE_CellBoundary(maze, x + 1, y, DIR_WEST) = bound;
+            
+            DIR_WEST:
+                if x > 1 then
+                    MAZE_CellBoundary(maze, x - 1, y, DIR_EAST) = bound;
+            
+        end;
+    end;
+    
+declare function MAZE_ClearVisited(&maze)
+    begin
+        declare integer as x;
+        declare integer as y;
+        
+        for y = 1 to MAZE_Y_SIZE
+            for x = 1 to MAZE_X_SIZE
+                MAZE_Cell(maze, x, y).Visited = false;
+    end;
+
+declare function MAZE_Create()
+    begin
+        declare MazeT as maze;
+    
+        declare integer as x;
+        declare integer as y;
+        
+        #
+        #  Create the maze.
+        #
+        for y = 1 to MAZE_Y_SIZE
+            for x = 1 to MAZE_X_SIZE
+                begin
+                
+                    #   East boundary
+                    if RandomReal() < 0.67 then
+                        MAZE_AssignCellBoundary(maze, x, y, DIR_EAST, BOUND_OPEN);
+                
+                    else if RandomReal() < 0.8 then
+                        MAZE_AssignCellBoundary(maze, x, y, DIR_EAST, BOUND_WALL);
+                        
+                    else
+                        MAZE_AssignCellBoundary(maze, x, y, DIR_EAST, BOUND_DOOR);
+                        
+                    #   South boundary
+                    if RandomReal() < 0.67 then
+                        MAZE_AssignCellBoundary(maze, x, y, DIR_SOUTH, BOUND_OPEN);
+                
+                    else if RandomReal() < 0.8 then
+                        MAZE_AssignCellBoundary(maze, x, y, DIR_SOUTH, BOUND_WALL);
+                        
+                    else
+                        MAZE_AssignCellBoundary(maze, x, y, DIR_SOUTH, BOUND_DOOR);
+                        
+                end;
+    
+        #
+        # Border the maze.
+        #
+        for x = 1 to MAZE_X_SIZE
+            begin
+                MAZE_CellBoundary(maze, x, 1, DIR_NORTH) = BOUND_WALL;
+                MAZE_CellBoundary(maze, x, MAZE_Y_SIZE, DIR_SOUTH) = BOUND_WALL;
+            end;
+        for y = 1 to MAZE_Y_SIZE
+            begin
+                MAZE_CellBoundary(maze, 1, y, DIR_EAST) = BOUND_WALL;
+                MAZE_CellBoundary(maze, MAZE_X_SIZE, y, DIR_WEST) = BOUND_WALL;
+            end;
+            
+        return maze;
+    end;
+    
+declare function MAZE_Boundary0(&maze, &loc, &pos)
+    switch pos
+        -1:
+            switch(loc.Facing)
+                DIR_NORTH:
+                    return MAZE_CellBoundary(maze, loc.XPos - 1, loc.YPos, TurnAround[Loc.Facing]);
+                
+                DIR_SOUTH:
+                    return MAZE_CellBoundary(maze, loc.XPos + 1, loc.YPos, TurnAround[Loc.Facing]);
+                
+                DIR_EAST:
+                    return MAZE_CellBoundary(maze, loc.XPos, loc.YPos - 1, TurnAround[Loc.Facing]);
+                
+                DIR_WEST:
+                    return MAZE_CellBoundary(maze, loc.XPos, loc.YPos + 1, TurnAround[Loc.Facing]);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        0:
+            return MAZE_CellBoundary(maze, loc.XPos, loc.YPos, TurnAround[Loc.Facing]);
+        
+        1:
+            switch(loc.Facing)
+                DIR_NORTH:
+                    return MAZE_CellBoundary(maze, loc.XPos + 1, loc.YPos, TurnAround[Loc.Facing]);
+                
+                DIR_SOUTH:
+                    return MAZE_CellBoundary(maze, loc.XPos - 1, loc.YPos, TurnAround[Loc.Facing]);
+                
+                DIR_EAST:
+                    return MAZE_CellBoundary(maze, loc.XPos, loc.YPos + 1, TurnAround[Loc.Facing]);
+                
+                DIR_WEST:
+                    return MAZE_CellBoundary(maze, loc.XPos, loc.YPos - 1, TurnAround[Loc.Facing]);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+        
+        otherwise:
+            Println("ERROR: Invalid relative position (" + pos + ") in MAZE_Boundary0().");
+            
+    end;
+    
+declare reference MAZE_Lines0_Left =  { };
+MAZE_Lines0_Left.Append(MAZE_Lines0_Left, GRAPH_CreateLine(0, 0, 50, 40));
+MAZE_Lines0_Left.Append(MAZE_Lines0_Left, GRAPH_CreateLine(50, 40, 50, 560));
+MAZE_Lines0_Left.Append(MAZE_Lines0_Left, GRAPH_CreateLine(50, 560, 0, 600));
+lock MAZE_Lines0_Left;
+
+declare reference MAZE_Lines0_Center =  { };
+lock MAZE_Lines0_Center;
+
+declare reference MAZE_Lines0_Right =  { };
+lock MAZE_Lines0_Right;
+
+    
+declare function MAZE_Draw(&gc, &maze, &loc)
+    begin
+        #
+        # Clear the window.
+        #
+        GRAPH_Clear(gc);
+        
+        if BOUND_OPEN != MAZE_Boundary0(maze, loc, -1) then
+            begin
+            
+            end;
+        else
+            begin
+            end;
+        
+        if BOUND_OPEN != MAZE_Boundary0(maze, loc, 0) then
+            begin
+            
+            end;
+        else
+            begin
+            end;
+        
+        if BOUND_OPEN != MAZE_Boundary0(maze, loc, 1) then
+            begin
+            
+            end;
+        else
+            begin
+            end;
+        
+        #
+        # Display position info at bottom of screen.
+        #
+        declare string as locstr =
+            "X: " + loc.XPos +
+            "  " +
+            "Y: " + loc.YPos +
+            "  " +
+            "Facing: " + DirectionStr[loc.Facing];
+            
+        declare integer as width;
+        declare integer as height;
+        GRAPH_GetTextDimensions(gc, locstr, width, height);
+        
+        GRAPH_DrawText(gc, (gc.XSize - width) / 2, gc.YSize - height - 3, locstr);
+    end;
+
+##################################
+##
+#   Application
+##
+##################################
+
+Print("Building maze... ");
+declare reference M = MAZE_Create();
+MAZE_ClearVisited(M);
+Println("DONE");
+
+Print("Placing PC... ");
+declare LocationT as Loc;
+Loc.XPos = RandomInteger(1, MAZE_X_SIZE);
+Loc.YPos = RandomInteger(1, MAZE_Y_SIZE);
+Loc.Facing = DIR_NORTH;
+Println("DONE");
+
+declare reference gc = GRAPH_CreateContext(WINDOW_WIDTH, WINDOW_HEIGHT, "Maze Explorer");
+GRAPH_Start(gc);
+
+gc.BackgroundColor = GRAPH_COLOR_BLACK;
+gc.ForegroundColor = GRAPH_COLOR_WHITE;
+GRAPH_ApplyContext(gc);
+
+declare boolean as done = false;
+while not done do
+    begin
+    
+        # Draw the maze in the display window.
+        MAZE_Draw(gc, M, Loc);
+        
+        # Flush the display.
+        GRAPH_Refresh();
+        
+        # Get user keypress and process.
+        switch ToUpperCase(ReadCh())
+            Ord("Q"):
+                done = true;
+        
+            GRAPH_KEY_UP:
+                begin
+                    declare reference boundary = MAZE_CellBoundary(M, Loc.XPos, Loc.YPos, Loc.Facing);
+                    
+                    if (BOUND_OPEN == boundary) or (BOUND_DOOR == boundary) then
+                        switch Loc.Facing
+                            DIR_NORTH:
+                                Dec(Loc.YPos);
+                    
+                            DIR_SOUTH:
+                                Inc(Loc.YPos);
+                            
+                            DIR_EAST:
+                                Inc(Loc.XPos);
+                            
+                            DIR_WEST:
+                                Dec(Loc.XPos);
+                            
+                            otherwise:
+                                Assert(false);
+                                
+                        end;
+                end;
+            
+            GRAPH_KEY_DOWN:
+                Loc.Facing = TurnAround[Loc.Facing];
+            
+            GRAPH_KEY_LEFT:
+                Loc.Facing = TurnLeft[Loc.Facing];
+            
+            GRAPH_KEY_RIGHT:
+                Loc.Facing = TurnRight[Loc.Facing];
+        
+            otherwise:
+                Assert(false);
+            
+        end;
+        
+    end;
+
+GRAPH_End();
+
+Newln();
+

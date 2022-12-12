@@ -1,0 +1,65 @@
+#
+#   time.dish
+#
+
+declare function FormatDateTime(&tm)
+    begin
+        declare string as str;
+        
+        if (tm.Hour < 10) then
+            str = str + "0";
+        if (tm.Hour < 12) then
+            str = str + tm.Hour;
+        else
+            str = str + (tm.Hour - 12);
+        
+        str = str + ":";
+        
+        if (tm.Minute < 10) then
+            str = str + "0";
+        str = str + tm.Minute;
+        
+        str = str + ":";
+        
+        if (tm.Second < 10) then
+            str = str + "0";
+        str = str + tm.Second;
+        
+        str = str + " ";
+        
+        if (tm.Hour < 12) then
+            str = str + "AM";
+        else
+            str = str + "PM";
+        
+        str = str + "  ";
+        
+        str = str + DaysOfTheWeek[tm.DayOfWeek];
+        str = str + ", ";
+        str = str + MonthsOfTheYear[tm.Month];
+        str = str + " ";
+        str = str + tm.Day;
+        str = str + ", ";
+        str = str + tm.Year;
+        
+        return str;
+    end;
+
+declare integer as now;
+now = DateTime();
+lock now;
+
+Newln();
+Println("Time = " + now);
+Newln();
+Println(FormatDateTime(DecomposeDateTimeValue(now)));
+Newln();
+
+declare reference timezone = TimeZoneInfo();
+Println("Timezone: " + timezone.Name + " (" + (timezone.Offset / AsReal(60 * 60)) + ")");
+if timezone.DayightSavings then
+    Println("    Supports daylight-savings time.");
+else
+    Println("    Does not support daylight-savings time.");
+Newln();
+

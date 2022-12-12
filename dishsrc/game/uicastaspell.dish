@@ -1,0 +1,488 @@
+import "map.dish";
+import "spells.dish";
+import "uicombat.dish";
+
+################################################################################
+
+declare integer as UI_CAST_A_SPELL_WIDTH = 55;
+lock UI_CAST_A_SPELL_WIDTH;
+
+declare integer as UI_CAST_A_SPELL_HEIGHT = 16;
+lock UI_CAST_A_SPELL_HEIGHT;
+
+declare integer as UI_CAST_A_SPELL_COLUMN_CENTER = 12;
+lock UI_CAST_A_SPELL_COLUMN_CENTER;
+
+declare integer as UI_CAST_A_SPELL_LEFT_OFFSET = 2;
+lock UI_CAST_A_SPELL_LEFT_OFFSET;
+
+declare integer as UI_CAST_A_SPELL_RIGHT_OFFSET = 25;
+lock UI_CAST_A_SPELL_RIGHT_OFFSET;
+
+################################################################################
+
+declare function CastSpell_Flare()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_Flare].Level);
+        Assert(PC.MP >= SpellList[SPELL_Flare].MPCost);
+        
+        if (Location.Y > Map[Location.Level].start) then
+            begin
+                if (Location.X > Map[Location.Level][Location.Y - 1].start) then
+                    Map[Location.Level][Location.Y - 1][Location.X - 1].Visited = true;
+                    
+                Map[Location.Level][Location.Y - 1][Location.X].Visited = true;
+                
+                if (Location.X < Map[Location.Level][Location.Y - 1].finish) then
+                    Map[Location.Level][Location.Y - 1][Location.X + 1].Visited = true;
+            end;
+        
+        if (Location.X > Map[Location.Level][Location.Y].start) then
+            Map[Location.Level][Location.Y][Location.X - 1].Visited = true;
+            
+        if (Location.X < Map[Location.Level][Location.Y].finish) then
+            Map[Location.Level][Location.Y][Location.X + 1].Visited = true;
+        
+        if (Location.Y < Map[Location.Level].finish) then
+            begin
+                if (Location.X > Map[Location.Level][Location.Y + 1].start) then
+                    Map[Location.Level][Location.Y + 1][Location.X - 1].Visited = true;
+                    
+                Map[Location.Level][Location.Y + 1][Location.X].Visited = true;
+                
+                if (Location.X < Map[Location.Level][Location.Y + 1].finish) then
+                    Map[Location.Level][Location.Y + 1][Location.X + 1].Visited = true;
+            end;
+            
+        Dec(PC.MP, SpellList[SPELL_Flare].MPCost);
+    end;
+    
+declare function CastSpell_HealingFinger()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_HealingFinger].Level);
+        Assert(PC.MP >= SpellList[SPELL_HealingFinger].MPCost);
+        
+        declare integer as amt = D4(MaximumSpellLevel(PC));
+            
+        Inc(PC.HP, amt);
+        if PC.HP > PC.MaxHP then
+            PC.HP = PC.MaxHP;
+        
+        Dec(PC.MP, SpellList[SPELL_HealingFinger].MPCost);
+            
+        UI_DialogBox(
+            PC.Name + " is healed " + amt + " hp.",
+            "Press any key...",
+            STRPRINTABLECHARS
+        );
+    end;
+    
+declare function CastSpell_PhysicalProtection()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_PhysicalProtection].Level);
+        Assert(PC.MP >= SpellList[SPELL_PhysicalProtection].MPCost);
+        
+    end;
+    
+declare function CastSpell_FireProtection()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_FireProtection].Level);
+        Assert(PC.MP >= SpellList[SPELL_FireProtection].MPCost);
+        
+    end;
+    
+declare function CastSpell_ColdProtection()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_ColdProtection].Level);
+        Assert(PC.MP >= SpellList[SPELL_ColdProtection].MPCost);
+        
+    end;
+    
+declare function CastSpell_PoisonProtection()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_PoisonProtection].Level);
+        Assert(PC.MP >= SpellList[SPELL_PoisonProtection].MPCost);
+        
+    end;
+    
+declare function CastSpell_ElectricProtection()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_ElectricProtection].Level);
+        Assert(PC.MP >= SpellList[SPELL_ElectricProtection].MPCost);
+        
+    end;
+    
+declare function CastSpell_MagicProtection()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_MagicProtection].Level);
+        Assert(PC.MP >= SpellList[SPELL_MagicProtection].MPCost);
+        
+    end;
+    
+declare function CastSpell_FireBall()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_FireBall].Level);
+        Assert(PC.MP >= SpellList[SPELL_FireBall].MPCost);
+        
+    end;
+    
+declare function CastSpell_SnowBall()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_SnowBall].Level);
+        Assert(PC.MP >= SpellList[SPELL_SnowBall].MPCost);
+        
+    end;
+    
+declare function CastSpell_PoisonTouch()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_PoisonTouch].Level);
+        Assert(PC.MP >= SpellList[SPELL_PoisonTouch].MPCost);
+        
+    end;
+    
+declare function CastSpell_ElectricCharge()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_ElectricCharge].Level);
+        Assert(PC.MP >= SpellList[SPELL_ElectricCharge].MPCost);
+        
+    end;
+    
+declare function CastSpell_MagicStrike()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_MagicStrike].Level);
+        Assert(PC.MP >= SpellList[SPELL_MagicStrike].MPCost);
+        
+    end;
+    
+declare function CastSpell_Reveal()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_Reveal].Level);
+        Assert(PC.MP >= SpellList[SPELL_Reveal].MPCost);
+        
+    end;
+    
+declare function CastSpell_Teleport()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_Teleport].Level);
+        Assert(PC.MP >= SpellList[SPELL_Teleport].MPCost);
+        
+    end;
+    
+declare function CastSpell_HealingTouch()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_HealingTouch].Level);
+        Assert(PC.MP >= SpellList[SPELL_HealingTouch].MPCost);
+        
+    end;
+    
+declare function CastSpell_BattleHymn()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_BattleHymn].Level);
+        Assert(PC.MP >= SpellList[SPELL_BattleHymn].MPCost);
+        
+    end;
+    
+declare function CastSpell_FireStorm()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_FireStorm].Level);
+        Assert(PC.MP >= SpellList[SPELL_FireStorm].MPCost);
+        
+    end;
+    
+declare function CastSpell_SnowStorm()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_SnowStorm].Level);
+        Assert(PC.MP >= SpellList[SPELL_SnowStorm].MPCost);
+        
+    end;
+    
+declare function CastSpell_PoisonCloud()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_PoisonCloud].Level);
+        Assert(PC.MP >= SpellList[SPELL_PoisonCloud].MPCost);
+        
+    end;
+    
+declare function CastSpell_ElectricBolt()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_ElectricBolt].Level);
+        Assert(PC.MP >= SpellList[SPELL_ElectricBolt].MPCost);
+        
+    end;
+    
+declare function CastSpell_MagicBolt()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_MagicBolt].Level);
+        Assert(PC.MP >= SpellList[SPELL_MagicBolt].MPCost);
+        
+    end;
+    
+declare function CastSpell_HolyStrike()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_HolyStrike].Level);
+        Assert(PC.MP >= SpellList[SPELL_HolyStrike].MPCost);
+        
+    end;
+    
+declare function CastSpell_UnholyStrike()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_UnholyStrike].Level);
+        Assert(PC.MP >= SpellList[SPELL_UnholyStrike].MPCost);
+        
+    end;
+    
+declare function CastSpell_Protection()
+    begin
+        Assert(PC.Level >= SpellList[SPELL_Protection].Level);
+        Assert(PC.MP >= SpellList[SPELL_Protection].MPCost);
+        
+    end;
+    
+declare function CastSpell(&index)
+    begin
+        switch index
+            0:
+                CastSpell_Flare();
+                
+            1:
+                CastSpell_HealingFinger();
+                
+            2:
+                CastSpell_PhysicalProtection();
+                
+            3:
+                CastSpell_FireProtection();
+                
+            4:
+                CastSpell_ColdProtection();
+                
+            5:
+                CastSpell_PoisonProtection();
+                
+            6:
+                CastSpell_ElectricProtection();
+                
+            7:
+                CastSpell_MagicProtection();
+                
+            8:
+                CastSpell_FireBall();
+                
+            9:
+                CastSpell_SnowBall();
+                
+            10:
+                CastSpell_PoisonTouch();
+                
+            11:
+                CastSpell_ElectricCharge();
+                
+            12:
+                CastSpell_MagicStrike();
+                
+            13:
+                CastSpell_Reveal();
+                
+            14:
+                CastSpell_Teleport();
+                
+            15:
+                CastSpell_HealingTouch();
+                
+            16:
+                CastSpell_BattleHymn();
+                
+            17:
+                CastSpell_FireStorm();
+                
+            18:
+                CastSpell_SnowStorm();
+                
+            19:
+                CastSpell_PoisonCloud();
+                
+            20:
+                CastSpell_ElectricBolt();
+                
+            21:
+                CastSpell_MagicBolt();
+                
+            22:
+                CastSpell_HolyStrike();
+                
+            23:
+                CastSpell_UnholyStrike();
+                
+            24:
+                CastSpell_Protection();
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+    end;
+    
+declare function CastSpellSelectionToIndex(&sp)
+    return sp - Ord("A");
+
+################################################################################
+
+declare function BuildAllowableCombatSpellSelections()
+    begin
+        declare string as allowable;
+        declare integer as i;
+        
+        for i = SpellList.start to SpellList.finish
+            if PC.SpellBook[i] and (PC.Level >= SpellList[i].Level) and (PC.MP >= SpellList[i].MPCost) then
+                allowable = allowable + `Chr(`Ord("A") + i - SpellList.start);
+        
+        return allowable;
+    end;
+
+declare function BuildAllowableNoncombatSpellSelections()
+    begin
+        declare string as allowable;
+        declare integer as i;
+        
+        for i = SpellList.start to SpellList.finish
+            if PC.SpellBook[i] and (not SpellList[i].CombatOnly) and (PC.Level >= SpellList[i].Level) and (PC.MP >= SpellList[i].MPCost) then
+                allowable = allowable + `Chr(`Ord("A") + i - SpellList.start);
+        
+        return allowable;
+    end;
+
+################################################################################
+
+declare function UI_CastASpell()
+    begin
+        declare string as allowable_spells;
+        if InCombat then
+            allowable_spells = BuildAllowableCombatSpellSelections();
+        else
+            allowable_spells = BuildAllowableNoncombatSpellSelections();
+        lock allowable_spells;
+    
+        declare boolean as done = false;
+            
+        while not done do
+            begin
+                declare integer as row = -1;
+                declare integer as col = (UI_MIN_TERMINAL_X - UI_CAST_A_SPELL_WIDTH - 4) / 2;
+                declare integer as i;
+                
+                #
+                #   Draw the window border
+                #
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_CAST_A_SPELL_WIDTH + 4, " "));
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_CAST_A_SPELL_WIDTH, "-") + "+ ");
+                
+                for i = 1 to UI_INSPECT_PC_HEIGHT
+                    begin
+                        TEXTIO_MoveTo(col, Inc(row));
+                        TEXTIO_AttrNormal();
+                        
+                        Print(" |" + StrReplicate(UI_CAST_A_SPELL_WIDTH, " ") + "| ");
+                    end;
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_CAST_A_SPELL_WIDTH, "-") + "+ ");
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_CAST_A_SPELL_WIDTH + 4, " "));
+                
+                #
+                #   Fill the window
+                #
+                
+                row = 2;
+                
+                TEXTIO_MoveTo(col + UI_CAST_A_SPELL_LEFT_OFFSET, row);
+                TEXTIO_AttrNormal();
+                Print(CenterJustify(UI_CAST_A_SPELL_WIDTH, PC.Name + "'s Spell Book"));
+                
+                Inc(row);
+                
+                i = 0;
+                while i <= 12 do
+                    begin
+                        if PC.SpellBook[i] and (PC.Level >= SpellList[i].Level) and (PC.MP >= SpellList[i].MPCost) and (InCombat or (not SpellList[i].CombatOnly)) then
+                            begin
+                                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 2, row);
+                                Print(
+                                    Chr(Ord("A") + i) + ". " + 
+                                    SpellList[i].Name + " (L" + SpellList[i].Level + ":" + SpellList[i].MPCost + ")"
+                                );
+                            end;
+                            
+                        Inc(row);
+                        Inc(i);
+                    end;
+                       
+                row = 3; 
+                while i <= SpellList.finish do
+                    begin
+                        if PC.SpellBook[i] and (PC.Level >= SpellList[i].Level) and (PC.MP >= SpellList[i].MPCost) and (InCombat or (not SpellList[i].CombatOnly)) then
+                            begin
+                                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + (UI_INSPECT_PC_WIDTH / 2) + 2, row);
+                                Print(
+                                    Chr(Ord("A") + i) + ". " + 
+                                    SpellList[i].Name + " (L" + SpellList[i].Level + ":" + SpellList[i].MPCost + ")"
+                                );
+                            end;
+                           
+                        Inc(row);
+                        Inc(i);
+                    end;
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_MoveTo(col + UI_CAST_A_SPELL_LEFT_OFFSET, UI_CAST_A_SPELL_HEIGHT + 1);
+                Print(CenterJustify(UI_CAST_A_SPELL_WIDTH, "[SPACE] to Exit"));
+                
+                declare integer as ch = ToUpperCase(ReadCh());
+                if Ord(" ") == ch then
+                    done = true;
+                    
+                else if STRINVALID != StrFind(allowable_spells, Chr(ch), 0, CASE_SENSITIVE) then
+                    begin
+                        declare integer as index = CastSpellSelectionToIndex(ch);
+                        declare integer as chance = CastSpellSuccessChancePC(PC) + 10 * (PC.Level - SpellList[index].Level);
+                        
+                        if TestChance(chance) then
+                            CastSpell(index);
+                        else
+                            begin
+                                UI_DialogBox(
+                                    PC.Name + "'s attempt to cast " + SpellList[index].Name + " failed.",
+                                    "Press any key...",
+                                    STRPRINTABLECHARS
+                                );
+                                
+                                Dec(PC.MP, SpellList[index].MPCost / 2);
+                            end;
+                            
+                        done = true;
+                    end;
+            end;
+        
+    
+    end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

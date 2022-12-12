@@ -1,0 +1,9 @@
+Newln();
+Println("There are " + NumCmdLnArgs + "(" + CmdLnArgs.Length + ") command-line arguments:");
+
+declare integer as i;
+for i = CmdLnArgs.Start to CmdLnArgs.finish
+    Println(CmdLnArgs[i]);
+    
+Newln();
+

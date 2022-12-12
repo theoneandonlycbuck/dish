@@ -1,0 +1,26 @@
+declare boolean as bool;
+declare integer as int;
+declare real as float;
+
+Newln();
+
+Println(" # bytes(boolean) = " + bool.bytes);
+Println("     Min(boolean) = " + bool.minimum);
+Println("     Max(boolean) = " + bool.maximum);
+
+Newln();
+
+Println(" # bytes(integer) = " + int.bytes);
+Println("     Min(integer) = " + int.minimum);
+Println("     Max(integer) = " + int.maximum);
+Println("     Eps(integer) = " + int.eps);
+
+Newln();
+
+Println("    # bytes(real) = " + float.bytes);
+Println("        Min(real) = " + float.minimum);
+Println("        Max(real) = " + float.maximum);
+Println("        Eps(real) = " + float.eps);
+
+Newln();
+

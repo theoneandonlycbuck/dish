@@ -1,0 +1,549 @@
+import "attr.dish";
+import "random.dish";
+
+declare type structure
+    declare integer as PhyDamage;
+    declare integer as FireDamage;
+    declare integer as PoisonDamage;
+    declare integer as ColdDamage;
+    declare integer as ElectricDamage;
+    declare integer as MagicDamage;
+end as DamageT;
+
+declare function SumDamage(&dmg)
+    return (
+        dmg.PhyDamage +
+        dmg.FireDamage +
+        dmg.PoisonDamage +
+        dmg.ColdDamage +
+        dmg.ElectricDamage +
+        dmg.MagicDamage
+    );
+
+declare function PrintDamage(&dmg)
+    begin
+        declare boolean as printed = false;
+        
+        if dmg.PhyDamage > 0 then
+            begin
+                if printed then
+                    Print("  ");
+                    
+                Print(dmg.PhyDamage + " phy");
+                printed = true;
+            end;
+        
+        if dmg.FireDamage > 0 then
+            begin
+                if printed then
+                    Print("  ");
+                    
+                Print(dmg.FireDamage + " fire");
+                printed = true;
+            end;
+        
+        if dmg.PoisonDamage > 0 then
+            begin
+                if printed then
+                    Print("  ");
+                    
+                Print(dmg.PoisonDamage + " psn");
+                printed = true;
+            end;
+        
+        if dmg.ColdDamage > 0 then
+            begin
+                if printed then
+                    Print("  ");
+                    
+                Print(dmg.ColdDamage + " cold");
+                printed = true;
+            end;
+        
+        if dmg.ElectricDamage > 0 then
+            begin
+                if printed then
+                    Print("  ");
+                    
+                Print(dmg.ElectricDamage + " elec");
+                printed = true;
+            end;
+        
+        if dmg.MagicDamage > 0 then
+            begin
+                if printed then
+                    Print("  ");
+                    
+                Print(dmg.MagicDamage + " mag");
+                printed = true;
+            end;
+            
+        if not printed then
+            Print("0");
+    end;
+
+################################################################################
+#
+#   Weapon list.
+#
+################################################################################
+
+declare type structure
+    declare string as Name;
+    
+    declare integer as ToHitBonus;
+    
+    declare integer as MinPhyDamage;
+    declare integer as MaxPhyDamage;
+    
+    declare integer as MinFireDamage;
+    declare integer as MaxFireDamage;
+    
+    declare integer as MinColdDamage;
+    declare integer as MaxColdDamage;
+    
+    declare integer as MinElectricDamage;
+    declare integer as MaxElectricDamage;
+    
+    declare integer as MinMagicDamage;
+    declare integer as MaxMagicDamage;
+end as WeaponT;
+
+#############################
+
+declare integer as ITEM_None = 0;
+lock ITEM_None;
+
+#############################
+
+declare integer as NumWeapons = 0;
+
+declare integer as WEAPON_Hands = NumWeapons; lock WEAPON_Hands; Inc(NumWeapons);
+declare integer as WEAPON_Dagger = NumWeapons; lock WEAPON_Dagger; Inc(NumWeapons);
+
+declare integer as WEAPON_Mace = NumWeapons; lock WEAPON_Mace; Inc(NumWeapons);
+declare integer as WEAPON_MagicMace = NumWeapons; lock WEAPON_MagicMace; Inc(NumWeapons);
+declare integer as WEAPON_ElectricMace = NumWeapons; lock WEAPON_ElectricMace; Inc(NumWeapons);
+declare integer as WEAPON_IceMace = NumWeapons; lock WEAPON_IceMace; Inc(NumWeapons);
+declare integer as WEAPON_FireMace = NumWeapons; lock WEAPON_IceMace; Inc(NumWeapons);
+
+declare integer as WEAPON_Sword = NumWeapons; lock WEAPON_Sword; Inc(NumWeapons);
+declare integer as WEAPON_MagicSword = NumWeapons; lock WEAPON_MagicSword; Inc(NumWeapons);
+declare integer as WEAPON_ElectricSword = NumWeapons; lock WEAPON_ElectricSword; Inc(NumWeapons);
+declare integer as WEAPON_IceSword = NumWeapons; lock WEAPON_IceSword; Inc(NumWeapons);
+declare integer as WEAPON_FireSword = NumWeapons; lock WEAPON_FireSword; Inc(NumWeapons);
+
+declare integer as WEAPON_Axe = NumWeapons; lock WEAPON_Axe; Inc(NumWeapons);
+declare integer as WEAPON_MagicAxe = NumWeapons; lock WEAPON_MagicSword; Inc(NumWeapons);
+declare integer as WEAPON_ElectricAxe = NumWeapons; lock WEAPON_ElectricSword; Inc(NumWeapons);
+declare integer as WEAPON_IceAxe = NumWeapons; lock WEAPON_IceSword; Inc(NumWeapons);
+declare integer as WEAPON_FireAxe= NumWeapons; lock WEAPON_FireSword; Inc(NumWeapons);
+
+declare integer as WEAPON_HolyTerror = NumWeapons; lock WEAPON_HolyTerror; Inc(NumWeapons);
+declare integer as WEAPON_UnholyTerror = NumWeapons; lock WEAPON_UnholyTerror; Inc(NumWeapons);
+
+Dec(NumWeapons);
+lock NumWeapons;
+
+#############################
+
+declare array [0 to NumWeapons] of WeaponT as WeaponList;
+
+WeaponList[WEAPON_Hands].Name = "Hands";
+WeaponList[WEAPON_Hands].MinPhyDamage = 1;
+WeaponList[WEAPON_Hands].MaxPhyDamage = 2;
+
+WeaponList[WEAPON_Dagger].Name = "Dagger";
+WeaponList[WEAPON_Dagger].MinPhyDamage = 1;
+WeaponList[WEAPON_Dagger].MaxPhyDamage = 4;
+
+
+WeaponList[WEAPON_Mace].Name = "Mace";
+WeaponList[WEAPON_Mace].MinPhyDamage = 1;
+WeaponList[WEAPON_Mace].MaxPhyDamage = 6;
+
+WeaponList[WEAPON_MagicMace].Name = "Magic Mace";
+WeaponList[WEAPON_MagicMace].MinPhyDamage = 1;
+WeaponList[WEAPON_MagicMace].MaxPhyDamage = 6;
+WeaponList[WEAPON_MagicMace].MinMagicDamage = 1;
+WeaponList[WEAPON_MagicMace].MaxMagicDamage = 3;
+
+WeaponList[WEAPON_ElectricMace].Name = "Electric Mace";
+WeaponList[WEAPON_ElectricMace].MinPhyDamage = 1;
+WeaponList[WEAPON_ElectricMace].MaxPhyDamage = 6;
+WeaponList[WEAPON_ElectricMace].MinElectricDamage = 1;
+WeaponList[WEAPON_ElectricMace].MaxElectricDamage = 3;
+
+WeaponList[WEAPON_IceMace].Name = "Ice Mace";
+WeaponList[WEAPON_IceMace].MinPhyDamage = 1;
+WeaponList[WEAPON_IceMace].MaxPhyDamage = 6;
+WeaponList[WEAPON_IceMace].MinColdDamage = 1;
+WeaponList[WEAPON_IceMace].MaxColdDamage = 3;
+
+WeaponList[WEAPON_FireMace].Name = "Fire Mace";
+WeaponList[WEAPON_FireMace].MinPhyDamage = 1;
+WeaponList[WEAPON_FireMace].MaxPhyDamage = 6;
+WeaponList[WEAPON_FireMace].MinFireDamage = 1;
+WeaponList[WEAPON_FireMace].MaxFireDamage = 3;
+
+
+WeaponList[WEAPON_Sword].Name = "Sword";
+WeaponList[WEAPON_Sword].MinPhyDamage = 2;
+WeaponList[WEAPON_Sword].MaxPhyDamage = 8;
+
+WeaponList[WEAPON_MagicSword].Name = "Magic Sword";
+WeaponList[WEAPON_MagicSword].MinPhyDamage = 2;
+WeaponList[WEAPON_MagicSword].MaxPhyDamage = 8;
+WeaponList[WEAPON_MagicSword].MinMagicDamage = 1;
+WeaponList[WEAPON_MagicSword].MaxMagicDamage = 3;
+
+WeaponList[WEAPON_ElectricSword].Name = "Electric Sword";
+WeaponList[WEAPON_ElectricSword].MinPhyDamage = 2;
+WeaponList[WEAPON_ElectricSword].MaxPhyDamage = 8;
+WeaponList[WEAPON_ElectricSword].MinElectricDamage = 1;
+WeaponList[WEAPON_ElectricSword].MaxElectricDamage = 3;
+
+WeaponList[WEAPON_IceSword].Name = "Ice Sword";
+WeaponList[WEAPON_IceSword].MinPhyDamage = 2;
+WeaponList[WEAPON_IceSword].MaxPhyDamage = 8;
+WeaponList[WEAPON_IceSword].MinColdDamage = 1;
+WeaponList[WEAPON_IceSword].MaxColdDamage = 3;
+
+WeaponList[WEAPON_FireSword].Name = "Fire Sword";
+WeaponList[WEAPON_FireSword].MinPhyDamage = 2;
+WeaponList[WEAPON_FireSword].MaxPhyDamage = 8;
+WeaponList[WEAPON_FireSword].MinFireDamage = 1;
+WeaponList[WEAPON_FireSword].MaxFireDamage = 3;
+
+
+WeaponList[WEAPON_Axe].Name = "Axe";
+WeaponList[WEAPON_Axe].ToHitBonus = -1;
+WeaponList[WEAPON_Axe].MinPhyDamage = 3;
+WeaponList[WEAPON_Axe].MaxPhyDamage = 10;
+
+WeaponList[WEAPON_MagicAxe].Name = "Magic Axe";
+WeaponList[WEAPON_MagicAxe].ToHitBonus = -1;
+WeaponList[WEAPON_MagicAxe].MinPhyDamage = 3;
+WeaponList[WEAPON_MagicAxe].MaxPhyDamage = 10;
+WeaponList[WEAPON_MagicAxe].MinMagicDamage = 1;
+WeaponList[WEAPON_MagicAxe].MaxMagicDamage = 3;
+
+WeaponList[WEAPON_ElectricAxe].Name = "Electric Axe";
+WeaponList[WEAPON_ElectricAxe].ToHitBonus = -1;
+WeaponList[WEAPON_ElectricAxe].MinPhyDamage = 3;
+WeaponList[WEAPON_ElectricAxe].MaxPhyDamage = 10;
+WeaponList[WEAPON_ElectricAxe].MinElectricDamage = 1;
+WeaponList[WEAPON_ElectricAxe].MaxElectricDamage = 3;
+
+WeaponList[WEAPON_IceAxe].Name = "Ice Axe";
+WeaponList[WEAPON_IceAxe].ToHitBonus = -1;
+WeaponList[WEAPON_IceAxe].MinPhyDamage = 3;
+WeaponList[WEAPON_IceAxe].MaxPhyDamage = 10;
+WeaponList[WEAPON_IceAxe].MinColdDamage = 1;
+WeaponList[WEAPON_IceAxe].MaxColdDamage = 3;
+
+WeaponList[WEAPON_FireAxe].Name = "Fire Axe";
+WeaponList[WEAPON_FireAxe].ToHitBonus = -1;
+WeaponList[WEAPON_FireAxe].MinPhyDamage = 3;
+WeaponList[WEAPON_FireAxe].MaxPhyDamage = 10;
+WeaponList[WEAPON_FireAxe].MinFireDamage = 1;
+WeaponList[WEAPON_FireAxe].MaxFireDamage = 3;
+
+
+WeaponList[WEAPON_HolyTerror].Name = "Holy Terror";
+WeaponList[WEAPON_HolyTerror].ToHitBonus = 5;
+WeaponList[WEAPON_HolyTerror].MinPhyDamage = 2;
+WeaponList[WEAPON_HolyTerror].MaxPhyDamage = 8;
+WeaponList[WEAPON_HolyTerror].MinMagicDamage = 1;
+WeaponList[WEAPON_HolyTerror].MaxMagicDamage = 2;
+WeaponList[WEAPON_HolyTerror].MinElectricDamage = 1;
+WeaponList[WEAPON_HolyTerror].MaxElectricDamage = 2;
+WeaponList[WEAPON_HolyTerror].MinColdDamage = 1;
+WeaponList[WEAPON_HolyTerror].MaxColdDamage = 4;
+
+WeaponList[WEAPON_UnholyTerror].Name = "Unholy Terror";
+WeaponList[WEAPON_UnholyTerror].ToHitBonus = 5;
+WeaponList[WEAPON_UnholyTerror].MinPhyDamage = 2;
+WeaponList[WEAPON_UnholyTerror].MaxPhyDamage = 8;
+WeaponList[WEAPON_UnholyTerror].MinMagicDamage = 1;
+WeaponList[WEAPON_UnholyTerror].MaxMagicDamage = 2;
+WeaponList[WEAPON_UnholyTerror].MinElectricDamage = 1;
+WeaponList[WEAPON_UnholyTerror].MaxElectricDamage = 2;
+WeaponList[WEAPON_UnholyTerror].MinFireDamage = 1;
+WeaponList[WEAPON_UnholyTerror].MaxFireDamage = 4;
+
+
+lock WeaponList;
+
+#############################
+
+declare function BuildWeaponDamage(&index)
+    begin
+        declare DamageT as dmg;
+        
+        declare reference wpn = WeaponList[index];
+        
+        dmg.PhyDamage = RandomInteger(wpn.MinPhyDamage, wpn.MaxPhyDamage);
+        dmg.FireDamage = RandomInteger(wpn.MinFireDamage, wpn.MaxFireDamage);
+        dmg.ColdDamage = RandomInteger(wpn.MinColdDamage, wpn.MaxColdDamage);
+        dmg.ElectricDamage = RandomInteger(wpn.MinElectricDamage, wpn.MaxElectricDamage);
+        dmg.MagicDamage = RandomInteger(wpn.MinMagicDamage, wpn.MaxMagicDamage);
+        
+        return dmg;
+    end;
+
+################################################################################
+#
+#   Armor list.
+#
+################################################################################
+
+declare type structure
+    declare string as Name;
+    
+    declare integer as DefenseBonus;
+    declare integer as ToHitBonus;
+    
+    declare integer as PhyDamageAdj;
+    declare integer as FireDamageAdj;
+    declare integer as ColdDamageAdj;
+    declare integer as ElectricDamageAdj;
+    declare integer as MagicDamageAdj;
+end as ArmorT;
+
+#############################
+
+declare integer as NumArmor = 0;
+
+declare integer as ARMOR_Clothes = NumArmor; lock ARMOR_Clothes; Inc(NumArmor);
+
+declare integer as ARMOR_Leather = NumArmor; lock ARMOR_Leather; Inc(NumArmor);
+declare integer as ARMOR_FireLeather = NumArmor; lock ARMOR_FireLeather; Inc(NumArmor);
+declare integer as ARMOR_IceLeather = NumArmor; lock ARMOR_IceLeather; Inc(NumArmor);
+declare integer as ARMOR_ElectricLeather = NumArmor; lock ARMOR_ElectricLeather; Inc(NumArmor);
+declare integer as ARMOR_MagicLeather = NumArmor; lock ARMOR_MagicLeather; Inc(NumArmor);
+
+declare integer as ARMOR_ChainMail = NumArmor; lock ARMOR_ChainMail; Inc(NumArmor);
+declare integer as ARMOR_FireChain = NumArmor; lock ARMOR_FireChain; Inc(NumArmor);
+declare integer as ARMOR_IceChain = NumArmor; lock ARMOR_IceChain; Inc(NumArmor);
+declare integer as ARMOR_ElectricChain = NumArmor; lock ARMOR_ElectricChain; Inc(NumArmor);
+declare integer as ARMOR_MagicChain = NumArmor; lock ARMOR_MagicChain; Inc(NumArmor);
+
+declare integer as ARMOR_PlateMail = NumArmor; lock ARMOR_PlateMail; Inc(NumArmor);
+declare integer as ARMOR_FirePlate = NumArmor; lock ARMOR_FirePlate; Inc(NumArmor);
+declare integer as ARMOR_IcePlate = NumArmor; lock ARMOR_IcePlate; Inc(NumArmor);
+declare integer as ARMOR_ElectricPlate = NumArmor; lock ARMOR_ElectricPlate; Inc(NumArmor);
+declare integer as ARMOR_MagicPlate = NumArmor; lock ARMOR_MagicPlate; Inc(NumArmor);
+
+declare integer as ARMOR_HolyProtector = NumArmor; lock ARMOR_HolyProtector; Inc(NumArmor);
+declare integer as ARMOR_UnholyProtector = NumArmor; lock ARMOR_UnholyProtector; Inc(NumArmor);
+
+Dec(NumArmor);
+lock NumArmor;
+
+#############################
+
+declare array [0 to NumArmor] of ArmorT as ArmorList;
+
+ArmorList[ARMOR_Clothes].Name = "Clothes";
+
+ArmorList[ARMOR_Leather].Name = "Leather";
+ArmorList[ARMOR_Leather].DefenseBonus = 15;
+ArmorList[ARMOR_Leather].ToHitBonus = -5;
+ArmorList[ARMOR_Leather].PhyDamageAdj = -1;
+
+ArmorList[ARMOR_FireLeather].Name = "Fire Leather";
+ArmorList[ARMOR_FireLeather].DefenseBonus = 15;
+ArmorList[ARMOR_FireLeather].ToHitBonus = -5;
+ArmorList[ARMOR_FireLeather].PhyDamageAdj = -1;
+ArmorList[ARMOR_FireLeather].FireDamageAdj = -2;
+
+ArmorList[ARMOR_IceLeather].Name = "Ice Leather";
+ArmorList[ARMOR_IceLeather].DefenseBonus = 15;
+ArmorList[ARMOR_IceLeather].ToHitBonus = -5;
+ArmorList[ARMOR_IceLeather].PhyDamageAdj = -1;
+ArmorList[ARMOR_IceLeather].ColdDamageAdj = -2;
+
+ArmorList[ARMOR_ElectricLeather].Name = "Electric Leather";
+ArmorList[ARMOR_ElectricLeather].DefenseBonus = 15;
+ArmorList[ARMOR_ElectricLeather].ToHitBonus = -5;
+ArmorList[ARMOR_ElectricLeather].PhyDamageAdj = -1;
+ArmorList[ARMOR_ElectricLeather].ElectricDamageAdj = -2;
+
+ArmorList[ARMOR_MagicLeather].Name = "Magic Leather";
+ArmorList[ARMOR_MagicLeather].DefenseBonus = 15;
+ArmorList[ARMOR_MagicLeather].ToHitBonus = -5;
+ArmorList[ARMOR_MagicLeather].PhyDamageAdj = -1;
+ArmorList[ARMOR_MagicLeather].MagicDamageAdj = -2;
+
+
+
+ArmorList[ARMOR_ChainMail].Name = "Chain Mail";
+ArmorList[ARMOR_ChainMail].DefenseBonus = 25;
+ArmorList[ARMOR_ChainMail].ToHitBonus = -10;
+ArmorList[ARMOR_ChainMail].PhyDamageAdj = -2;
+
+ArmorList[ARMOR_FireChain].Name = "Fire Chain";
+ArmorList[ARMOR_FireChain].DefenseBonus = 25;
+ArmorList[ARMOR_FireChain].ToHitBonus = -10;
+ArmorList[ARMOR_FireChain].PhyDamageAdj = -1;
+ArmorList[ARMOR_FireChain].FireDamageAdj = -2;
+
+ArmorList[ARMOR_IceChain].Name = "Ice Chain";
+ArmorList[ARMOR_IceChain].DefenseBonus = 25;
+ArmorList[ARMOR_IceChain].ToHitBonus = -10;
+ArmorList[ARMOR_IceChain].PhyDamageAdj = -1;
+ArmorList[ARMOR_IceChain].ColdDamageAdj = -2;
+
+ArmorList[ARMOR_ElectricChain].Name = "Electric Chain";
+ArmorList[ARMOR_ElectricChain].DefenseBonus = 25;
+ArmorList[ARMOR_ElectricChain].ToHitBonus = -10;
+ArmorList[ARMOR_ElectricChain].PhyDamageAdj = -1;
+ArmorList[ARMOR_ElectricChain].ElectricDamageAdj = -2;
+
+ArmorList[ARMOR_MagicChain].Name = "Magic Chain";
+ArmorList[ARMOR_MagicChain].DefenseBonus = 25;
+ArmorList[ARMOR_MagicChain].ToHitBonus = -10;
+ArmorList[ARMOR_MagicChain].PhyDamageAdj = -1;
+ArmorList[ARMOR_MagicChain].MagicDamageAdj = -2;
+
+
+
+ArmorList[ARMOR_PlateMail].Name = "Plate Mail";
+ArmorList[ARMOR_PlateMail].DefenseBonus = 35;
+ArmorList[ARMOR_PlateMail].ToHitBonus = -15;
+ArmorList[ARMOR_PlateMail].PhyDamageAdj = -3;
+
+ArmorList[ARMOR_FirePlate].Name = "Fire Plate";
+ArmorList[ARMOR_FirePlate].DefenseBonus = 35;
+ArmorList[ARMOR_FirePlate].ToHitBonus = -15;
+ArmorList[ARMOR_FirePlate].PhyDamageAdj = -3;
+ArmorList[ARMOR_FirePlate].FireDamageAdj = -2;
+
+ArmorList[ARMOR_IcePlate].Name = "Ice Plate";
+ArmorList[ARMOR_IcePlate].DefenseBonus = 35;
+ArmorList[ARMOR_IcePlate].ToHitBonus = -15;
+ArmorList[ARMOR_IcePlate].PhyDamageAdj = -3;
+ArmorList[ARMOR_IcePlate].ColdDamageAdj = -2;
+
+ArmorList[ARMOR_ElectricPlate].Name = "Electric Plate";
+ArmorList[ARMOR_ElectricPlate].DefenseBonus = 35;
+ArmorList[ARMOR_ElectricPlate].ToHitBonus = -15;
+ArmorList[ARMOR_ElectricPlate].PhyDamageAdj = -3;
+ArmorList[ARMOR_ElectricPlate].ElectricDamageAdj = -2;
+
+ArmorList[ARMOR_MagicPlate].Name = "Magic Plate";
+ArmorList[ARMOR_MagicPlate].DefenseBonus = 35;
+ArmorList[ARMOR_MagicPlate].ToHitBonus = -15;
+ArmorList[ARMOR_MagicPlate].PhyDamageAdj = -3;
+ArmorList[ARMOR_MagicPlate].MagicDamageAdj = -2;
+
+ArmorList[ARMOR_HolyProtector].Name = "Holy Protector";
+ArmorList[ARMOR_HolyProtector].DefenseBonus = 20;
+ArmorList[ARMOR_HolyProtector].ToHitBonus = -5;
+ArmorList[ARMOR_HolyProtector].PhyDamageAdj = -2;
+ArmorList[ARMOR_HolyProtector].FireDamageAdj = -3;
+ArmorList[ARMOR_HolyProtector].ElectricDamageAdj = -2;
+ArmorList[ARMOR_HolyProtector].ColdDamageAdj = -2;
+ArmorList[ARMOR_HolyProtector].MagicDamageAdj = -2;
+
+ArmorList[ARMOR_UnholyProtector].Name = "Unholy Protector";
+ArmorList[ARMOR_UnholyProtector].DefenseBonus = 20;
+ArmorList[ARMOR_UnholyProtector].ToHitBonus = -5;
+ArmorList[ARMOR_UnholyProtector].PhyDamageAdj = -2;
+ArmorList[ARMOR_UnholyProtector].FireDamageAdj = -2;
+ArmorList[ARMOR_UnholyProtector].ElectricDamageAdj = -2;
+ArmorList[ARMOR_UnholyProtector].ColdDamageAdj = -3;
+ArmorList[ARMOR_UnholyProtector].MagicDamageAdj = -2;
+
+
+lock ArmorList;
+
+################################################################################
+#
+#   Misc. item list.
+#
+################################################################################
+
+declare type structure
+    declare string as Name;
+    
+    declare integer as DefenseBonus;
+    declare integer as ToHitBonus;
+    
+    declare integer as PhyDamageAdj;
+    declare integer as FireDamageAdj;
+    declare integer as PoisonDamageAdj;
+    declare integer as ColdDamageAdj;
+    declare integer as ElectricDamageAdj;
+    declare integer as MagicDamageAdj;
+end as MiscItemT;
+
+#############################
+
+declare integer as NumMiscItems = 0;
+
+declare integer as MISC_None = NumMiscItems; lock MISC_None; Inc(NumMiscItems);
+
+declare integer as MISC_RingOfProtection = NumMiscItems; lock MISC_RingOfProtection; Inc(NumMiscItems);
+declare integer as MISC_RingOfTheWarrior = NumMiscItems; lock MISC_RingOfTheWarrior; Inc(NumMiscItems);
+declare integer as MISC_RingOfShields = NumMiscItems; lock MISC_RingOfShields; Inc(NumMiscItems);
+declare integer as MISC_HolyRoller = NumMiscItems; lock MISC_HolyRoller; Inc(NumMiscItems);
+declare integer as MISC_UnholyRoller = NumMiscItems; lock MISC_UnholyRoller; Inc(NumMiscItems);
+
+Dec(NumMiscItems);
+lock NumMiscItems;
+
+#############################
+
+declare array [0 to NumMiscItems] of MiscItemT as MiscItemList;
+
+MiscItemList[MISC_None].Name = "None";
+
+MiscItemList[MISC_RingOfProtection].Name = "Ring Of Protection";
+MiscItemList[MISC_RingOfProtection].DefenseBonus = 10;
+
+MiscItemList[MISC_RingOfTheWarrior].Name = "Ring Of The Warrior";
+MiscItemList[MISC_RingOfTheWarrior].ToHitBonus = 10;
+
+MiscItemList[MISC_RingOfShields].Name = "Ring Of Shileds";
+MiscItemList[MISC_RingOfShields].PhyDamageAdj = -1;
+MiscItemList[MISC_RingOfShields].FireDamageAdj = -1;
+MiscItemList[MISC_RingOfShields].PoisonDamageAdj = -1;
+MiscItemList[MISC_RingOfShields].ColdDamageAdj = -1;
+MiscItemList[MISC_RingOfShields].ElectricDamageAdj = -1;
+MiscItemList[MISC_RingOfShields].MagicDamageAdj = -1;
+
+MiscItemList[MISC_HolyRoller].Name = "Holy Roller";
+MiscItemList[MISC_HolyRoller].DefenseBonus = 5;
+MiscItemList[MISC_HolyRoller].ToHitBonus = 5;
+MiscItemList[MISC_HolyRoller].PhyDamageAdj = -1;
+MiscItemList[MISC_HolyRoller].FireDamageAdj = -1;
+MiscItemList[MISC_HolyRoller].PoisonDamageAdj = -1;
+MiscItemList[MISC_HolyRoller].ColdDamageAdj = -1;
+MiscItemList[MISC_HolyRoller].ElectricDamageAdj = -1;
+MiscItemList[MISC_HolyRoller].MagicDamageAdj = -1;
+
+MiscItemList[MISC_UnholyRoller].Name = "Unholy Roller";
+MiscItemList[MISC_UnholyRoller].DefenseBonus = 5;
+MiscItemList[MISC_UnholyRoller].ToHitBonus = 5;
+MiscItemList[MISC_UnholyRoller].PhyDamageAdj = -1;
+MiscItemList[MISC_UnholyRoller].FireDamageAdj = -1;
+MiscItemList[MISC_UnholyRoller].PoisonDamageAdj = -1;
+MiscItemList[MISC_UnholyRoller].ColdDamageAdj = -1;
+MiscItemList[MISC_UnholyRoller].ElectricDamageAdj = -1;
+MiscItemList[MISC_UnholyRoller].MagicDamageAdj = -1;
+
+lock MiscItemList;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

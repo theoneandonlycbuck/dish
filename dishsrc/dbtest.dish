@@ -1,0 +1,67 @@
+
+################################################################################
+
+declare integer as DATABASE_TYPE = DB_TYPE_MYSQL;
+lock DATABASE_TYPE;
+
+#declare string as HOST_NAME = "192.168.1.140";
+declare string as HOST_NAME = "127.0.0.1";
+lock HOST_NAME;
+
+declare string as USER_NAME = "root";
+lock USER_NAME;
+
+#declare string as PASSWORD = "db123$ab";
+declare string as PASSWORD = "db$01abC";
+lock PASSWORD;
+
+declare string as DATABASE_NAME = "db4u";
+lock DATABASE_NAME;
+
+declare string as QUERY = "SELECT * FROM document";
+#declare string as QUERY = "SELECT COUNT(*) FROM document";
+lock QUERY;
+
+################################################################################
+
+declare function PrintResultSet(&result)
+    begin
+        declare integer as row;
+        
+        for row = result.start to result.finish
+            if result[row].length > 1 then
+                begin
+                    declare reference sequence = result[row][0];
+                    declare reference title = result[row][4];
+                    
+                    Println(sequence + "   " + title);
+                end;
+            else
+                Println(result[row][0]);
+    end;
+
+################################################################################
+
+Assert(IS_LIB_DATABASE);
+Assert(IS_LIB_DATABASE_MYSQL);
+
+declare DB_ConnectionParametersT as connparams;
+DB_MakeDefaultConnectionParameters(connparams);
+connparams.Host = HOST_NAME;
+connparams.UserName = USER_NAME;
+connparams.Password = PASSWORD;
+connparams.DbName = DATABASE_NAME;
+
+declare integer as handle = DB_OpenConnection(DATABASE_TYPE, connparams);
+
+Println(
+    "Connection established with MySQL v" + VersionAsString(DB_ServerVersion(handle)) + "."
+);
+Println("Open connection(s): " + DB_NumOpenConnections());
+Newln();
+
+PrintResultSet(DB_IssueQuery(handle, QUERY));
+Newln();
+
+DB_CloseConnection(handle);
+

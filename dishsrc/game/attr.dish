@@ -1,0 +1,185 @@
+import "random.dish";
+
+#
+#  Types
+#
+
+declare type structure
+    declare string as Name;
+    declare integer as Value;
+end as AttributeT;
+
+#
+#  Index values
+#
+
+declare integer as ATTR_Num = 0;
+
+declare integer as ATTR_Strength = ATTR_Num; lock ATTR_Strength; Inc(ATTR_Num);
+declare integer as ATTR_Intelligence = ATTR_Num; lock ATTR_Intelligence; Inc(ATTR_Num);
+declare integer as ATTR_Piety = ATTR_Num; lock ATTR_Piety; Inc(ATTR_Num);
+declare integer as ATTR_Dexterity = ATTR_Num; lock ATTR_Dexterity; Inc(ATTR_Num);
+declare integer as ATTR_Constitution = ATTR_Num; lock ATTR_Constitution; Inc(ATTR_Num);
+declare integer as ATTR_Charisma = ATTR_Num; lock ATTR_Charisma; Inc(ATTR_Num);
+declare integer as ATTR_Perception = ATTR_Num; lock ATTR_Perception; Inc(ATTR_Num);
+declare integer as ATTR_Luck = ATTR_Num; lock ATTR_Luck; Inc(ATTR_Num);
+Dec(ATTR_Num);
+
+lock ATTR_Num;
+
+declare type array [0 to ATTR_Num] of AttributeT as PhyAttributeSetT;
+
+#####
+
+declare integer as SAVE_Num = 0;
+
+declare integer as SAVE_SaveVsFire = SAVE_Num; lock SAVE_SaveVsFire; lock SAVE_SaveVsFire; Inc(SAVE_Num);
+declare integer as SAVE_SaveVsPoison = SAVE_Num; lock SAVE_SaveVsPoison; lock SAVE_SaveVsPoison; Inc(SAVE_Num);
+declare integer as SAVE_SaveVsCold = SAVE_Num; lock SAVE_SaveVsCold; lock SAVE_SaveVsCold; Inc(SAVE_Num);
+declare integer as SAVE_SaveVsElectric = SAVE_Num; lock SAVE_SaveVsElectric; lock SAVE_SaveVsElectric; Inc(SAVE_Num);
+declare integer as SAVE_SaveVsMagic = SAVE_Num; lock SAVE_SaveVsMagic; lock SAVE_SaveVsMagic; Inc(SAVE_Num);
+Dec(SAVE_Num);
+
+lock SAVE_Num;
+
+declare type array [0 to SAVE_Num] of AttributeT as SaveAttributeSetT;
+
+#
+#  Functions
+#
+
+################################################################################
+
+declare function RollPhyAttributePC()
+    return Maximum(D20(5), Maximum(D20(5), D20(5)));
+
+declare function RollPhyAttributesPC(&ch)
+    begin
+        ch.PhyAttr[ATTR_Strength].Name = "Strength";
+        ch.PhyAttr[ATTR_Strength].Value = RollPhyAttributePC();
+        
+        ch.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        ch.PhyAttr[ATTR_Intelligence].Value = RollPhyAttributePC();
+        
+        ch.PhyAttr[ATTR_Piety].Name = "Piety";
+        ch.PhyAttr[ATTR_Piety].Value = RollPhyAttributePC();
+        
+        ch.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        ch.PhyAttr[ATTR_Dexterity].Value = RollPhyAttributePC();
+        
+        ch.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        ch.PhyAttr[ATTR_Constitution].Value = RollPhyAttributePC();
+        
+        ch.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        ch.PhyAttr[ATTR_Charisma].Value = RollPhyAttributePC();
+        
+        ch.PhyAttr[ATTR_Perception].Name = "Perception";
+        ch.PhyAttr[ATTR_Perception].Value = RollPhyAttributePC();
+        
+        ch.PhyAttr[ATTR_Luck].Name = "Luck";
+        ch.PhyAttr[ATTR_Luck].Value = RollPhyAttributePC();
+    end;
+
+################################################################################
+
+declare function PhyDamageBonusAttr(&attr)
+    return (attr[ATTR_Strength].Value - 50) / 25;
+
+declare function ToHitBonusAttr(&attr)
+    return (attr[ATTR_Dexterity].Value - 50) / 5;
+
+declare function DefendBonusAttr(&attr)
+    return (attr[ATTR_Dexterity].Value - 50) / 5;
+
+declare function HitPointBonusAttr(&attr)
+    begin
+        if attr[ATTR_Constitution].Value >= 90 then
+            return 3;
+            
+        else if attr[ATTR_Constitution].Value >= 80 then
+            return 2;
+            
+        else if attr[ATTR_Constitution].Value >= 70 then
+            return 1;
+            
+        else if attr[ATTR_Constitution].Value >= 25 then
+            return 0;
+            
+        else if attr[ATTR_Constitution].Value >= 10 then
+            return -1;
+            
+        return -2;
+    end;
+
+declare function MagicPointBonusAttr(&attr)
+    begin
+        if attr[ATTR_Intelligence].Value >= 90 then
+            return 3;
+            
+        else if attr[ATTR_Intelligence].Value >= 80 then
+            return 2;
+            
+        else if attr[ATTR_Intelligence].Value >= 70 then
+            return 1;
+            
+        else if attr[ATTR_Intelligence].Value >= 25 then
+            return 0;
+            
+        else if attr[ATTR_Intelligence].Value >= 10 then
+            return -1;
+            
+        return -2;
+    end;
+    
+declare function CastSpellSuccessChanceAttr(&attr)
+    return 50 + (attr[ATTR_Intelligence].Value - 50) / 5;
+    
+declare function DetectTrapBonusAttr(&attr)
+    return (attr[ATTR_Perception].Value - 50) / 5;
+    
+declare function DisarmTrapBonusAttr(&attr)
+    return (attr[ATTR_Dexterity].Value - 50) / 5;
+    
+declare function FleeBonusAttr(&attr)
+    return (attr[ATTR_Dexterity].Value - 50) / 2.5;
+
+################################################################################
+
+declare function RollSaveAttributePC()
+    return 25 + D10(5);
+
+declare function RollSaveAttributesPC(&ch)
+    begin
+        ch.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        ch.SaveAttr[SAVE_SaveVsFire].Value = RollSaveAttributePC();
+        
+        ch.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        ch.SaveAttr[SAVE_SaveVsPoison].Value = RollSaveAttributePC();
+        
+        ch.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        ch.SaveAttr[SAVE_SaveVsCold].Value = RollSaveAttributePC();
+        
+        ch.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        ch.SaveAttr[SAVE_SaveVsElectric].Value = RollSaveAttributePC();
+        
+        ch.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        ch.SaveAttr[SAVE_SaveVsMagic].Value = RollSaveAttributePC();
+    end;
+    
+declare function TestChance(&chance)
+    return (D100() <= chance);
+    
+declare function TestAtribute(&attr)
+    return TestChance(attr.Value);
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

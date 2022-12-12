@@ -1,0 +1,43 @@
+
+declare string as source = "this subject has a submarine as a subsequence";
+lock source;
+
+begin
+    declare integer as regex = REGEX_Create("\\b(sub)([^ ]*)");
+    lock regex;
+
+    declare integer as pos = 0;
+    declare string as segment;
+
+    Println(source + " :");
+    repeat
+        Println("    REGEX_Match(" + regex + ", source, " + pos + ")");
+
+        segment = REGEX_Match(regex, source, pos);
+        if segment.length != 0 then
+            Println("    " + segment);
+    until segment.length == 0;
+
+    REGEX_Destroy(regex);
+end;
+
+Newln();
+
+begin
+    declare integer as regex = REGEX_Create("\\b(sub)([^ ]*)");
+    lock regex;
+
+    declare integer as pos = 0;
+    declare string as segment;
+
+    Println(source + " :");
+    Print("    ");
+    Println(
+        REGEX_ReplaceNext(regex, source, 0, "XXX")
+    );
+
+    REGEX_Destroy(regex);
+end;
+
+Newln();
+

@@ -1,0 +1,92 @@
+declare integer as UI_MAXIMUM_DIALOG_WIDTH = 40;
+lock UI_MAXIMUM_DIALOG_WIDTH;
+
+declare function PrintArray(&A)
+    begin
+        Println("Array of length " + A.length);
+        Println("Array[" + A.start + " to " + A.finish + "] = {");
+        
+        declare integer as i;
+        for i = A.start to A.finish
+            Println("    " + A[i]);
+        
+        Println("}");
+    end;
+
+declare function DialogBox(msg, &prompt, &allowable)
+    begin
+        declare integer as i;
+        declare reference strarray = {};
+        
+        while msg.length > 0 do
+            begin
+                declare integer as index = UI_MAXIMUM_DIALOG_WIDTH;
+                
+                PrintArray(strarray);
+                Newln();
+                
+                if index < msg.length then
+                    begin
+                        if Ord(" ") != msg[index] then
+                            index = StrFindLastOf(msg, " ", index, true);
+                        
+                        Append(strarray, strarray.finish + 1, StrLeft(msg, index));
+                        msg = StrRight(msg, index + 1);
+                    end;
+                else
+                    begin
+                        Append(strarray, strarray.finish + 1, msg);
+                        msg = "";
+                    end;
+            end;
+        
+        Append(strarray, strarray.finish + 1, "");
+        Append(strarray, strarray.finish + 1, CenterJustify(UI_MAXIMUM_DIALOG_WIDTH, prompt));
+    
+        declare integer as width = 0;
+        for i = strarray.start to strarray.finish
+            if strarray[i].length > width then
+                width = strarray[i].length;
+        width = width + 6;
+        lock width;
+        
+        Println("Printing the array...");
+        Newln();
+        Println(strarray);
+        
+        Newln();
+        Newln();
+        
+        for i = strarray.start to strarray.finish
+            begin
+                Print(i + ".  " + LeftJustify(width - 6, strarray[i]));
+            end;
+        
+        declare integer as ch;
+        repeat
+            ch = ReadCh();
+        until STRINVALID != StrFind(STRPRINTABLE, ch, 0, false);
+    end;
+    
+#DialogBox(
+#    "This is an example of a really long string value that must be displayed in the terminal window.",
+#    "Press [space] to continue...",
+#    " "
+#);
+
+declare reference A = {}; 
+
+Newln();
+PrintArray(A);
+Newln();
+Insert(A, A.finish + 1, 1);
+PrintArray(A);
+Newln();
+Insert(A, A.finish + 1, 2);
+PrintArray(A);
+Newln();
+Insert(A, A.finish + 1, 3);
+Newln();
+PrintArray(A);
+Newln();
+

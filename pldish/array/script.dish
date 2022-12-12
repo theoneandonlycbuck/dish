@@ -1,0 +1,48 @@
+declare array[0 to 9] of Boolean as BooleanA; 
+declare array[0 to 9] of Integer as IntegerA;
+declare array[0 to 9] of Real as RealA;
+declare array[0 to 9] of String as StringA;
+
+declare array[0 to 9] of structure
+    declare string as Name;
+    declare integer as Id;
+    declare real as Salary;
+    declare boolean as Management;
+end as EmployeeA;
+
+declare integer as i;
+
+for i = BooleanA.start to BooleanA.finish
+    BooleanA[i] = true;
+
+for i = IntegerA.start to IntegerA.finish
+    IntegerA[i] = i;
+
+for i = RealA.start to RealA.finish
+    RealA[i] = i;
+
+for i = StringA.start to StringA.finish
+    StringA[i] = 'text' + i;
+
+for i = EmployeeA.start to EmployeeA.finish
+    begin
+        EmployeeA[i].Name = 'Harvey Dent';
+        EmployeeA[i].Id = 1629217;
+        EmployeeA[i].Salary = 123456.78;
+        EmployeeA[i].Management = true;
+    end;
+
+Assert(BooleanA.start == IntegerA.start);
+Assert(IntegerA.start == RealA.start);
+Assert(RealA.start == StringA.start);
+Assert(StringA.start == EmployeeA.start);
+
+Assert(BooleanA.finish == IntegerA.finish);
+Assert(IntegerA.finish == RealA.finish);
+Assert(RealA.finish == StringA.finish);
+Assert(StringA.finish == EmployeeA.finish);
+
+Println('dish:');
+for i = StringA.start to StringA.finish
+    Println('   ' + i + '.  ' + BooleanA[i] + '\t' + IntegerA[i] + '\t' + RealA[i] + '\t' + StringA[i]);
+

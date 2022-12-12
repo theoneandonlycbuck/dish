@@ -1,0 +1,22 @@
+Copyright (c) 2014-2022 Chris Buck
+
+DISH is free software for non-commercial use; you can redistribute it and/or
+modify it provided
+
+    (1) The following Copyright notice is displayed at runtime and in any
+        accompanying documentation:
+
+        DISH programming language copyright (c) 2014-2022 by Chris Buck.
+    
+    (2) All source files duplicate this copyright statement in full.
+    
+Commercial licenses can be negotiated by contacting Chris Buck at
+chrisbuck1220@hotmail.com.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

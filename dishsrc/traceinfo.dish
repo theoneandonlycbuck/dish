@@ -1,0 +1,21 @@
+declare type structure
+    declare integer as Numer;
+    declare integer as Denom;
+end as FractionT;
+
+declare function CreateFraction(&numer, &denom)
+    begin
+        Assert(0 != denom);
+        
+        declare FractionT as frac;
+        frac.Numer = numer;
+        frac.Denom = denom;
+        
+        return frac;
+    end;
+    
+declare integer as X = 1;
+Print("-X = " + -X);
+    
+CreateFraction(1, 2) + 0.4;
+

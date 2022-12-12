@@ -1,0 +1,80 @@
+declare boolean as success = true;
+
+################################################################################
+
+declare boolean as bool;
+declare integer as int;
+declare real as float;
+declare string as str;
+
+declare TypeOf(bool) as bool2;
+if not IsBoolean(bool2) then
+    begin
+        Println("'bool2' is not of type boolean!!!");
+        successs = false;
+    end;
+
+declare TypeOf(int) as int2;
+if not IsInteger(int2) then
+    begin
+        Println("'int2' is not of type integer!!!");
+        successs = false;
+    end;
+
+declare TypeOf(float) as float2;
+if not IsReal(float2) then
+    begin
+        Println("'float2' is not of type real!!!");
+        successs = false;
+    end;
+
+declare TypeOf(str) as str2;
+if not IsString(str2) then
+    begin
+        Println("'str2' is not of type string!!!");
+        successs = false;
+    end;
+
+################################################################################
+
+declare type structure
+    declare integer as Key;
+    declare string as Value;
+end as StructT;
+
+declare TypeOf(StructT) as struct2;
+if not IsStructure(struct2) then
+    begin
+        Println("'struct2' is not of type structure!!!");
+        successs = false;
+    end;
+else
+    begin
+        struct2.Key = 13;
+        struct2.Value = "value";
+    end;
+
+################################################################################
+
+declare type array [1 to 10] of integer as ListT;
+
+declare TypeOf(ListT) as array2;
+if not IsArray(array2) then
+    begin
+        Println("'array2' is not of type array!!!");
+        successs = false;
+    end;
+else
+    begin
+        declare integer as i;
+        
+        for i = array2.start to array2.finish
+            array2[i] = i;
+    end;
+
+################################################################################
+
+if success then
+    Println("Success!!!");
+Newln();
+

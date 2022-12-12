@@ -1,0 +1,43 @@
+declare integer as ARRAY_SIZE = 1000000;
+lock ARRAY_SIZE;
+
+declare boolean as PRINT_ARRAY = false;
+lock PRINT_ARRAY;
+
+declare function PrintArray(&A)
+    begin
+        declare integer as i;
+        for i = A.start to A.finish
+            Println(i + ". " + A[i]);
+    end;
+
+declare integer as i;
+
+Println("Declaring...");
+declare array [1 to ARRAY_SIZE] of integer as A;
+
+Println("Initializing...");
+for i = A.start to A.finish
+    A[i] = i;
+    
+Println("Shuffling...");
+for i = A.start to A.finish
+    `Swap(A, i, `RandomInteger() % A.finish + 1);
+    
+Println();
+i = RandomInteger(A.start, A.finish);
+Println("Looking for " + i + ": " + Find(A, i, SORT_ASCENDING));
+if PRINT_ARRAY then
+    PrintArray(A);
+Println();
+    
+Println("Sorting...");
+Sort(A, SORT_ASCENDING);
+    
+Println();
+i = RandomInteger(A.start, A.finish);
+Println("Looking for " + i + "... " + FindSorted(A, i, SORT_ASCENDING));
+if PRINT_ARRAY then
+    PrintArray(A);
+Println();
+

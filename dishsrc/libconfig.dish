@@ -1,0 +1,99 @@
+
+Print("Core library ");
+if IS_LIB_CORE() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("File I/O library ");
+if IS_LIB_FILEIO() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("String library ");
+if IS_LIB_STRING() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Date/Time library ");
+if IS_LIB_DATETIME() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Core math library ");
+if IS_LIB_MATH_CORE() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Trig math library ");
+if IS_LIB_MATH_TRIG() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Complex math library ");
+if IS_LIB_MATH_COMPLEX() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Random math library ");
+if IS_LIB_MATH_RANDOM() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Matrix math library ");
+if IS_LIB_MATH_MATRIX() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Text I/O library ");
+if IS_LIB_TEXTIO() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("Network library ");
+if IS_LIB_NETWORK() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Print("File-system library ");
+if IS_LIB_FILESYS() then
+    Print("is");
+else
+    Print("is not");
+Println(" present.");
+
+
+Newln();
+

@@ -1,0 +1,34 @@
+TEXTIO_Start();
+TEXTIO_Refresh();
+
+declare integer as xsize = TEXTIO_GetXSize();
+lock xsize;
+declare integer as ysize = TEXTIO_GetYSize();
+lock ysize;
+
+declare integer as x;
+declare integer as y;
+
+for y = 0 to 7
+    begin
+        TEXTIO_MoveTo(0, y);
+        TEXTIO_AttrNormal();
+        Print(LeftJustify(2, AsString(y + 1)));
+    
+        for x = 0 to 7
+            begin
+                TEXTIO_MoveTo(2 + 8 * x, y);
+                TEXTIO_SetColor(x, y);
+                Print("  String");
+            end;
+    end;
+TEXTIO_Refresh();
+
+declare string as in = Read();
+
+TEXTIO_End();
+
+Newln();
+Println("Terminal is " + xsize + "x" + ysize + ".");
+Newln();
+

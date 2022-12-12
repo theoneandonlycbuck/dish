@@ -1,0 +1,27 @@
+import "vector3d.dish";
+
+declare type array[0 to 1] of Vector3D as Ray3D;
+
+declare function MakeRay3D(&V1, &V2)
+    begin
+        declare Ray3D R;
+        
+        R[0] = V1;
+        R[1] = V2;
+        
+        return R;
+    end;
+
+declare function R3D_Origin(&R)
+    return R[0];
+    
+declare function R3D_Direction(&R)
+    return R[1];
+    
+declare function R3D_PointAtParameter(&R, &t)
+    return MakeVector3D(
+        R[0][0] + t * R[1][0],
+        R[0][1] + t * R[1][1],
+        R[0][2] + t * R[1][2]
+    );
+

@@ -1,0 +1,334 @@
+import "item.dish";
+import "map.dish";
+import "random.dish";
+
+#############################
+
+declare integer as TRAP_NUM = 0;
+
+declare integer as TRAP_None = TRAP_NUM; Inc(TRAP_NUM); lock TRAP_None;
+declare integer as TRAP_CrossbowBolt = 1; Inc(TRAP_NUM); lock TRAP_CrossbowBolt;
+declare integer as TRAP_FireBall = 2; Inc(TRAP_NUM); lock TRAP_FireBall;
+declare integer as TRAP_PoisonNeedle = 3; Inc(TRAP_NUM); lock TRAP_PoisonNeedle;
+declare integer as TRAP_SnowBall = 4; Inc(TRAP_NUM); lock TRAP_SnowBall;
+declare integer as TRAP_ElectricBolt = 5; Inc(TRAP_NUM); lock TRAP_ElectricBolt;
+declare integer as TRAP_MagicBolt = 6; Inc(TRAP_NUM); lock TRAP_MagicBolt;
+Dec(TRAP_NUM);
+
+lock TRAP_NUM;
+
+declare array [1 to TRAP_NUM] of string as TRAP_Strings;
+TRAP_Strings[TRAP_CrossbowBolt] = "Crossbow Bolt";
+TRAP_Strings[TRAP_FireBall] = "Fire Ball";
+TRAP_Strings[TRAP_PoisonNeedle] = "Poison Needle";
+TRAP_Strings[TRAP_SnowBall] = "Snow Ball";
+TRAP_Strings[TRAP_ElectricBolt] = "Electric Bolt";
+TRAP_Strings[TRAP_MagicBolt] = "Magic Bolt";
+lock TRAP_Strings;
+
+#############################
+
+declare type structure
+    declare integer as Level;
+
+    declare integer as Gold;
+    declare integer as Food;
+    declare integer as Flares;
+    
+    declare integer as Weapon;
+    declare integer as Armor;
+    declare integer as Misc;
+end as TreasureT;
+
+declare function FormatTreasureString(&treasure)
+    begin
+        declare string as message;
+        
+        if 0 != treasure.Gold then
+            begin
+                if 0 != message.Length then
+                    message = message + ", ";
+            
+                message = message + treasure.Gold + " gold";
+            end;
+        
+        if 0 != treasure.Food then
+            begin
+                if 0 != message.Length then
+                    message = message + ", ";
+            
+                message = message + treasure.Food + " food";
+            end;
+        
+        if 0 != treasure.Flares then
+            begin
+                if 0 != message.Length then
+                    message = message + ", ";
+            
+                message = message + treasure.Flares + " flare";
+                
+                if treasure.Flares > 1 then
+                    message = message + "s";
+            end;
+            
+        if ITEM_None != treasure.Weapon then
+            begin
+                if 0 != message.Length then
+                    message = message + ", ";
+            
+                message = message + WeaponList[treasure.Weapon].Name;
+            end;
+            
+        if ITEM_None != treasure.Armor then
+            begin
+                if 0 != message.Length then
+                    message = message + ", ";
+            
+                message = message + ArmorList[treasure.Armor].Name;
+            end;
+            
+        if ITEM_None != treasure.Misc then
+            begin
+                if 0 != message.Length then
+                    message = message + ", ";
+            
+                message = message + MiscItemList[treasure.Misc].Name;
+            end;
+            
+        if 0 == message.Length then
+            message = "nothing";
+        
+        return message;
+    end;
+
+#############################
+
+declare function RollTreasure1(&treasure)
+    begin
+        treasure.Level = 1;
+    
+        switch D8()
+            1, 2, 3:
+                Inc(treasure.Food,  D4(D2()));
+                
+            4, 5, 6:
+                Inc(treasure.Flares, D2());
+                
+            7:
+                Inc(treasure.Gold, D6(D2()));
+            
+            8:
+                switch D4()
+                    1, 2, 3:
+                        treasure.Weapon = WEAPON_Dagger;
+                        
+                    4:
+                        treasure.Armor = ARMOR_Leather;
+                    
+                    otherwise:
+                        Assert(false);
+                    
+                end;
+            
+            otherwise:
+                Assert(false);
+                
+        end;
+    end;
+
+declare function RollTreasure2(&treasure)
+    begin
+        treasure.Level = 2;
+    
+        switch D8()
+            1, 2:
+                Inc(treasure.Food,  D4(D2()));
+                
+            3, 4:
+                Inc(treasure.Flares, D2());
+                
+            5, 6:
+                Inc(treasure.Gold, D6(D2()));
+            
+            7, 8:
+                switch D6()
+                    1, 2:
+                        treasure.Weapon = WEAPON_Dagger;
+                        
+                    3, 4:
+                        treasure.Armor = ARMOR_Leather;
+                        
+                    5:
+                        treasure.Weapon = WEAPON_Mace;
+                    
+                    6:
+                        treasure.Armor = ARMOR_ChainMail;
+                    
+                    otherwise:
+                        Assert(false);
+                    
+                end;
+            
+            otherwise:
+                Assert(false);
+                
+        end;
+    end;
+
+declare function RollTreasure3(&treasure)
+    begin
+        treasure.Level = 3;
+        
+        switch D4()
+            1:
+                Inc(treasure.Food,  D4(D2()));
+                
+            2:
+                Inc(treasure.Flares, D4());
+                
+            3:
+                Inc(treasure.Gold, D6(D4()));
+            
+            4:
+                switch D6()
+                    1, 2:
+                        treasure.Armor = ARMOR_Leather;
+                        
+                    3, 4:
+                        treasure.Weapon = WEAPON_Mace;
+                        
+                    5:
+                        treasure.Armor = ARMOR_ChainMail;
+                    
+                    6:
+                        if RandomBoolean() then
+                            treasure.Weapon = WEAPON_Mace + D4();
+                        else
+                            treasure.Armor = ARMOR_Leather + D4();
+                    
+                    otherwise:
+                        Assert(false);
+                    
+                end;
+            
+            otherwise:
+                Assert(false);
+                
+        end;
+    end;
+
+declare function RollTreasure4(&treasure)
+    begin
+        treasure.Level = 4;
+        
+        
+    end;
+
+declare function RollTreasure5(&treasure)
+    begin
+        treasure.Level = 5;
+        
+        
+    end;
+
+declare function RollTreasure6(&treasure)
+    begin
+        treasure.Level = 6;
+        
+        
+    end;
+
+declare function RollTreasure7(&treasure)
+    begin
+        treasure.Level = 7;
+        
+        
+    end;
+
+declare function RollTreasure8(&treasure)
+    begin
+        treasure.Level = 8;
+        
+        
+    end;
+
+declare function RollTreasure9(&treasure)
+    begin
+        treasure.Level = 9;
+        
+        
+    end;
+
+declare function RollTreasure10(&treasure)
+    begin
+        treasure.Level = 10;
+        
+        
+    end;
+
+#############################
+
+declare function RollTreasure(&adjlevel, &treasure)
+    begin
+    
+        #
+        #   Initialize the treasure structure.
+        #
+        
+        treasure.Gold = 0;
+        treasure.Food = 0;
+        treasure.Flares = 0;
+        
+        treasure.Weapon = ITEM_None;
+        treasure.Armor = ITEM_None;
+        treasure.Misc = ITEM_None;
+        
+        #
+        #   Roll treasure...
+        #
+        
+        switch AsInteger(10.0 * AsReal(adjlevel) / MAP_LEVEL_SIZE)
+            1:
+                RollTreasure1(treasure);
+                
+            2:
+                RollTreasure2(treasure);
+                
+            3:
+                RollTreasure3(treasure);
+                
+            4:
+                RollTreasure4(treasure);
+                
+            5:
+                RollTreasure5(treasure);
+                
+            6:
+                RollTreasure6(treasure);
+                
+            7:
+                RollTreasure7(treasure);
+                
+            8:
+                RollTreasure8(treasure);
+                
+            9:
+                RollTreasure9(treasure);
+                
+            otherwise:
+                RollTreasure10(treasure);
+                
+        end;
+    end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

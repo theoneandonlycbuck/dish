@@ -1,0 +1,90 @@
+declare integer as UI_MAXIMUM_DIALOG_WIDTH = 20;
+lock UI_MAXIMUM_DIALOG_WIDTH;
+
+declare function PrintArray(&A)
+    begin
+        Println("A[" + A.start + ".." + A.finish + "] =");
+        Println("{");
+        
+        declare integer as i;
+        for i = A.start to A.finish
+            Println("    " + A[i]);
+            
+        Println("}");
+    end;
+    
+declare function UI_DialogBox(msg, &prompt, &allowable)
+    begin
+        declare integer as i;
+        declare reference strarray = {};
+        
+        while msg.length > 0 do
+            begin
+                declare integer as index = UI_MAXIMUM_DIALOG_WIDTH;
+                
+                if index < msg.length then
+                    begin
+                        if Ord(" ") != msg[index] then
+                            index = StrFindLastOf(msg, " ", index, true);
+                        
+                        Append(strarray, strarray.finish + 1, StrLeft(msg, index));
+                        msg = StrRight(msg, index + 1);
+                    end;
+                else
+                    begin
+                        Append(strarray, strarray.finish + 1, msg);
+                        msg = "";
+                    end;
+            end;
+        
+        Append(strarray, strarray.finish + 1, "");
+        Append(strarray, strarray.finish + 1, prompt);
+    
+        declare integer as width = 0;
+        for i = strarray.start to strarray.finish
+            if strarray[i].length > width then
+                width = strarray[i].length;
+        width = width + 6;
+        lock width;
+        
+        declare integer as height = strarray.finish + 4;
+        lock height;
+        
+        TEXTIO_AttrNormal();
+        
+        Println(StrReplicate(width, " "));
+        Println(" +" + StrReplicate(width - 4, "-") + "+ ");
+        
+        for i = strarray.start to strarray.finish
+            begin
+                Println(" | " + CenterJustify(width - 6, strarray[i]) + " | ");
+            end;
+        
+        Println(" +" + StrReplicate(width - 4, "-") + "+ ");
+        Println(StrReplicate(width, " "));
+        
+        ReadCh();
+    end;
+    
+UI_DialogBox("This is an example message; it will be very long.", "Press any key...", true);
+
+Newln();
+
+declare reference msg = "This is an example message; it will be very long.";
+declare integer as index = UI_MAXIMUM_DIALOG_WIDTH;
+
+Print("index = " + index);
+
+if Ord(" ") != msg[index] then
+    begin
+        index = StrFindLastOf(msg, " ", index, true);
+        Print("; index = " + index);
+    end;
+    
+Newln();
+
+Println("left = " + StrLeft(msg, index));
+Println("right = " + StrRight(msg, index));
+
+Newln();
+

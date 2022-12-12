@@ -1,0 +1,52 @@
+declare string as TestName = "<uninitialized>";
+
+declare integer as TestCount = -1;
+
+declare integer as TestPass = -1;
+declare integer as TestFail = -1;
+
+declare function TEST_Start(&name)
+    begin
+        TestName = name;
+    
+        TestCount = 0;
+        
+        TestPass = 0;
+        TestFail = 0;
+    end;
+    
+declare function TEST_Perform(&name, &testF)
+    begin
+        `Inc(TestCount);
+        
+        declare boolean pass;
+        
+        Print(name + "... ");
+        if testF() then
+            begin
+                Println("PASS");
+                `Inc(TestPass);
+                pass = true;
+            end;
+        else 
+            begin
+                Println("FAIL");
+                `Inc(TestFail);
+                pass = false;
+            end;
+            
+       return pass;
+    end;
+    
+decalre function TEST_Report()
+    begin
+        Println();
+        Println(TestName + " complete! " + TestPass + " / " + TestCount + " passed (" + (AsInteger(10000.0 * TestPass / TestCount) / 100.0) + "%).");
+        Println();
+    
+        TestName = "<uninitialized>";
+        TestCount = -1;
+        TestPass = -1;
+        TestFail = -1;
+    end;
+

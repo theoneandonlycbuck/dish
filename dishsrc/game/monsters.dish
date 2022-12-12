@@ -1,0 +1,927 @@
+import "attr.dish";
+import "random.dish";
+
+################################################################################
+
+declare type structure
+    declare string as Name;
+    declare integer as Level;
+    declare integer as XP;
+    
+    declare integer as Identifier;
+    
+    declare PhyAttributeSetT as PhyAttr;
+    declare SaveAttributeSetT as SaveAttr;
+    
+    declare integer as HP;
+    declare integer as MaxHP;
+    
+    declare integer as MP;
+    declare integer as MaxMP;
+end as MonsterT;
+
+################################################################################
+
+declare integer as MONSTER_NUM = 0;
+
+declare integer as MONSTER_NONE = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_NONE;
+
+declare integer as MONSTER_ORC = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_ORC;
+declare integer as MONSTER_SKELETON = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_SKELETON;
+declare integer as MONSTER_DOG = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_DOG;
+declare integer as MONSTER_MAINTENANCE_MAN = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_MAINTENANCE_MAN;
+
+declare integer as MONSTER_ZOMBIE = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_ZOMBIE;
+declare integer as MONSTER_GUARD = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_GUARD;
+declare integer as MONSTER_ATTACK_DOG = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_ATTACK_DOG;
+declare integer as MONSTER_ORC_CAPTAIN = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_ORC_CAPTAIN;
+
+declare integer as MONSTER_MUMMY = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_MUMMY;
+declare integer as MONSTER_MERCENARY = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_MERCENARY;
+declare integer as MONSTER_WOLF = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_WOLF;
+declare integer as MONSTER_TROLL = MONSTER_NUM; Inc(MONSTER_NUM); lock MONSTER_TROLL;
+
+Dec(MONSTER_NUM);
+lock MONSTER_NUM;
+
+################################################################################
+
+declare reference EncounterSet = {};
+
+################################################################################
+
+declare function MONSTER_Clear(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "<none>";
+        monster.Level = 0;
+        monster.XP = 0;
+        
+        monster.Identifier = MONSTER_NONE;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = 0;
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = 0;
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = 0;
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = 0;
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = 0;
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = 0;
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = 0;
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = 0;
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = 0;
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = 0;
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = 0;
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = 0;
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = 0;
+        
+        ###
+        
+        monster.MaxHP = 0;
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+    
+################################################################################
+
+declare function MONSTER_CreateOrc(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Orc";
+        monster.Level = 1;
+        monster.XP = 10;
+        
+        monster.Identifier = MONSTER_ORC;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = D6(2);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateSkeleton(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Skeleton";
+        monster.Level = 1;
+        monster.XP = 15;
+        
+        monster.Identifier = MONSTER_SKELETON;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = 10;
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = 10;
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = 10;
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = 50 + D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = 100;
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = 50 + D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = D6(3);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateDog(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Dog";
+        monster.Level = 1;
+        monster.XP = 5;
+        
+        monster.Identifier = MONSTER_DOG;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = D8(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = 10;
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = 10;
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D6(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = 10;
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = D4(3);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateMaintenanceMan(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Maintenance Man";
+        monster.Level = 1;
+        monster.XP = 18;
+        
+        monster.Identifier = MONSTER_MAINTENANCE_MAN;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = D10(6);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = 8 + D6(2);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+    
+################################################################################
+
+declare function MONSTER_CreateZombie(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Zombie";
+        monster.Level = 2;
+        monster.XP = 25;
+        
+        monster.Identifier = MONSTER_ZOMBIE;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = 25 + D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = 10;
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = 10;
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = 10;
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = 50 + D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = 100;
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = 50 + D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = 10 + D6(3);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateGuard(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Guard";
+        monster.Level = 2;
+        monster.XP = 30;
+        
+        monster.Identifier = MONSTER_GUARD;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = 10 + D10(6);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = 10 + D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = 10 + D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(10);
+        
+        ###
+        
+        monster.MaxHP = 15 + D6(4);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateAttackDog(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Attack Dog";
+        monster.Level = 2;
+        monster.XP = 15;
+        
+        monster.Identifier = MONSTER_ATTACK_DOG;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = 10;
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = 10;
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D6(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = 10;
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = 5 + D4(4);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateOrcCaptain(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Orc Captain";
+        monster.Level = 2;
+        monster.XP = 20;
+        
+        monster.Identifier = MONSTER_ORC_CAPTAIN;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = 25 + D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = 25 + D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = 10 + D6(2);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+    
+################################################################################
+
+declare function MONSTER_CreateMummy(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Mummy";
+        monster.Level = 3;
+        monster.XP = 45;
+        
+        monster.Identifier = MONSTER_MUMMY;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = 35 + D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = 10;
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = 10;
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = 10;
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = 50 + D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = 100;
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = 50 + D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = 15 + D6(5);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateMercenary(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Mercenary";
+        monster.Level = 3;
+        monster.XP = 50;
+        
+        monster.Identifier = MONSTER_GUARD;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = 20 + D10(6);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = 20 + D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = 20 + D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(10);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(10);
+        
+        ###
+        
+        monster.MaxHP = 25 + D6(5);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateWolf(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Wolf";
+        monster.Level = 3;
+        monster.XP = 25;
+        
+        monster.Identifier = MONSTER_WOLF;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = 10;
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = 10;
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = D6(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = 10;
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = 5 + D6(4);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+declare function MONSTER_CreateTroll(&monster)
+    begin
+        
+        ###
+        
+        monster.Name = "Troll";
+        monster.Level = 3;
+        monster.XP = 60;
+        
+        monster.Identifier = MONSTER_TROLL;
+        
+        ###
+        
+        monster.PhyAttr[ATTR_Strength].Name = "Strength";
+        monster.PhyAttr[ATTR_Strength].Value = 50 + D10(5);
+        
+        monster.PhyAttr[ATTR_Intelligence].Name = "Intelligence";
+        monster.PhyAttr[ATTR_Intelligence].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Piety].Name = "Piety";
+        monster.PhyAttr[ATTR_Piety].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Dexterity].Name = "Dexterity";
+        monster.PhyAttr[ATTR_Dexterity].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Constitution].Name = "Constitution";
+        monster.PhyAttr[ATTR_Constitution].Value = 50 + D10(5);
+        
+        monster.PhyAttr[ATTR_Charisma].Name = "Charisma";
+        monster.PhyAttr[ATTR_Charisma].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Perception].Name = "Perception";
+        monster.PhyAttr[ATTR_Perception].Value = D10(5);
+        
+        monster.PhyAttr[ATTR_Luck].Name = "Luck";
+        monster.PhyAttr[ATTR_Luck].Value = D10(5);
+        
+        ###
+        
+        monster.SaveAttr[SAVE_SaveVsFire].Name = "Save vs. Fire";
+        monster.SaveAttr[SAVE_SaveVsFire].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsPoison].Name = "Save vs. Poison";
+        monster.SaveAttr[SAVE_SaveVsPoison].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsCold].Name = "Save vs. Cold";
+        monster.SaveAttr[SAVE_SaveVsCold].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsElectric].Name = "Save vs. Electric";
+        monster.SaveAttr[SAVE_SaveVsElectric].Value = D10(5);
+        
+        monster.SaveAttr[SAVE_SaveVsMagic].Name = "Save vs. Magic";
+        monster.SaveAttr[SAVE_SaveVsMagic].Value = D10(5);
+        
+        ###
+        
+        monster.MaxHP = 25 + D10(8);
+        monster.HP = monster.MaxHP;
+        
+        monster.MaxMP = 0;
+        monster.MP = monster.MaxMP;
+        
+        ###
+        
+    end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

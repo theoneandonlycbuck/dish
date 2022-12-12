@@ -1,0 +1,33 @@
+
+declare function F()
+    begin
+        declare reference A = {};
+
+        Println("    Adding element #" + Append(A, "START"));
+
+        Println("    Adding element #" + Append(A, true));
+        Println("    Adding element #" + Append(A, false));
+        Println("    Adding element #" + Append(A, 1));
+        Println("    Adding element #" + Append(A, 2));
+        Println("    Adding element #" + Append(A, 3.14159));
+        Println("    Adding element #" + Append(A, "this is a string"));
+        Println("    Adding element #" + Append(A, "between"));
+
+        Println("    Adding element #" + Append(A, "FINISH"));
+
+        declare integer as i;
+
+        Newln();
+        Println("    A has " + A.length + " elements, from " + A.start + " to " + A.finish + ".");
+        Newln();
+        for i = A.start to A.finish
+            Println("    A[" + i + "] = " + A[i]);
+        Newln();
+    end;
+    
+Newln();
+F();
+Newln();
+F();
+Newln();
+

@@ -1,0 +1,39 @@
+declare integer as WINDOW_WIDTH = 800;
+lock WINDOW_WIDTH;
+
+declare integer as WINDOW_HEIGHT = 600;
+lock WINDOW_HEIGHT;
+
+##############################################################################
+
+declare reference gc = GRAPH_CreateContext(WINDOW_WIDTH, WINDOW_HEIGHT, "Graphics Test");
+GRAPH_Start(gc);
+
+gc.BackgroundColor = GRAPH_COLOR_WHITE;
+gc.ForegroundColor = GRAPH_COLOR_BLACK;
+GRAPH_ApplyContext(gc);
+
+GRAPH_Clear(gc);
+
+declare reference fonts = GRAPH_GetFontList();
+#Println("Found " + fonts.length + " fonts...");
+#declare integer as i;
+#for i = fonts.start to fonts.finish
+#    Println("    " + fonts[i]);
+
+GRAPH_DrawText(
+    gc,
+    GRAPH_CreatePoint(50, 40),
+    "Chris Buck"
+);
+
+declare integer as width;
+declare integer as height;
+GRAPH_GetTextDimensions(gc, "Chris Buck", width, height);
+
+ReadCh();
+
+GRAPH_End();
+
+Println('String "Chris Buck" measures ' + width + "x" + height + ".");
+

@@ -1,0 +1,121 @@
+#! dish -symtabstats 
+
+import "gameargs.dish";
+import "map.dish";
+import "pc.dish";
+import "ui.dish";
+
+assert(IS_LIB_MATH_CORE);
+assert(IS_LIB_MATH_RANDOM);
+
+################################################################################
+
+declare function GAME_Direction(&destination_loc)
+    begin
+        if Map[destination_loc.Level][destination_loc.Y][destination_loc.X].Visited then
+            if destination_loc.Level > Location.Level then
+                return "is somewhere on the upper levels.";
+                
+            else if destination_loc.Level < Location.Level then
+                return "is somewhere on the lower levels.";
+                
+            else if (destination_loc.X == Location.X) and (destination_loc.Y == Location.Y) then
+                begin
+                    return "is in the same room as you.";
+                end;
+                
+            else if destination_loc.Y == Location.Y then
+                begin
+                    if destination_loc.X < Location.X then
+                        return "is due west of you.";
+                    else
+                        return "is due east of you.";
+                end;
+                
+            else if destination_loc.X == Location.X then
+                if destination_loc.Y < Location.Y then
+                    return "is due north of you.";
+                else
+                    return "is due south of you.";
+            
+            else
+                begin
+                    declare string as direction = "is ";
+                    
+                    declare real as denom = destination_loc.X - Location.X;
+                    declare real as numer = destination_loc.Y - Location.Y;
+                        
+                    declare real as angle = ArcTan(numer / denom);
+                    if (numer < 0)  then
+                        Inc(angle, PI);
+                    
+                    if angle < (PI / 8) then
+                        direction = direction + "north";
+                        
+                    else if angle < (3 * PI / 8) then
+                        direction = direction + "northeast";
+                        
+                    else if angle < (5 * PI / 8) then
+                        direction = direction + "east";
+                        
+                    else if angle < (7 * PI / 8) then
+                        direction = direction + "southeast";
+                        
+                    else if angle < (9 * PI / 8) then
+                        direction = direction + "south";
+                        
+                    else if angle < (11 * PI / 8) then
+                        direction = direction + "southwest";
+                        
+                    else if angle < (13 * PI / 8) then
+                        direction = direction + "west";
+                        
+                    else if angle < (15 * PI / 8) then
+                        direction = direction + "northwest";
+                        
+                    else
+                        direction = direction + "north";
+                    
+                    direction = direction + " of you.";
+                    
+                    return direction;
+                end;
+            
+        return "'s whereabouts are unknown to you.";
+    end;
+
+################################################################################
+
+declare string as name = "Hank";
+
+Newln();
+Print("Enter character name: ");
+#name = Readln();
+Newln();
+
+Println("Creating PC...");
+RollCharacter(PC, name);
+
+Println("Building map...");
+MAP_CreateMap(Map, Location);
+
+#  This is done here because some of the command-line args require the map or PC
+#  to have been generated.
+Println("Processing command-line...");
+ProcessCommandLine();
+
+ReleaseCachedParseTreeNodes();
+Println("Done!");
+
+if PlayTheGame then
+    begin
+        UI_Start();
+        UI_DrawMainScreen();
+        UI_End();
+        
+        if ShowGameStatistics then
+            MAP_PrintMapStatistics();
+    end;
+
+Newln();
+

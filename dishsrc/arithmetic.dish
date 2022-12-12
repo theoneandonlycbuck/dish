@@ -1,0 +1,63 @@
+declare integer as One = 1;
+declare integer as Two = 2;
+declare integer as Three = 3;
+declare integer as Four = 4;
+declare integer as Five = 5;
+
+declare integer as result;
+
+
+
+result = One + Two + Three + Four + Five;
+Assert(result == (1 + 2 + 3 + 4 + 5));
+Println("1 + 2 + 3 + 4 + 5 = " + result);
+
+result = One + (Two + Three) + Four + Five;
+Assert(result == (1 + (2 + 3) + 4 + 5));
+Println("1 + (2 + 3) + 4 + 5 = " + result);
+
+result = One - (Two - Three) - Four - Five;
+Assert(result == (1 - (2 - 3) - 4 - 5));
+Println("1 - (2 - 3) - 4 - 5 = " + result);
+
+Println();
+
+result = One * Two * Three * Four * Five;
+Assert(result == (1 * 2 * 3 * 4 * 5));
+Println("1 * 2 * 3 * 4 * 5 = " + result);
+
+Println();
+
+####
+
+declare function f(&x)
+    100 * 3 * 2 ^ x / 4;
+
+declare integer as i;
+for i = 0 to 10
+    Println(i + " : " + f(i));
+
+####
+
+Println();
+
+declare integer as A = 2; lock A;
+declare integer as B = 3; lock B;
+
+DEBUG_PrintParseTree("1 + 2 + 3 + A + B + 6;");
+result = 1 + 2 + 3 + A + B + 6;
+Println("1 + 2 + 3 + A + B + 6 = " + result);
+
+Newln();
+
+Println("A = " + A);
+Println("B = " + B);
+
+Newln();
+
+DEBUG_PrintParseTree("1 * 2 * 3 * A * B * 6;");
+result = 1 * 2 * 3 * A * B * 6;
+Println("1 * 2 * 3 * A * B * 6 = " + result);
+
+Println();
+

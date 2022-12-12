@@ -1,0 +1,7 @@
+declare integer as i;
+
+for i = 1 to 10
+    begin
+        Println("Random #" + i + " = " + Random());
+    end;
+    

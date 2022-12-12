@@ -1,0 +1,137 @@
+#
+#  Calculate X
+#
+
+Print("Defining functions... ");
+
+declare function Square(x)
+    begin
+        return (x * x);
+    end;
+    
+declare function Factorial(&x)
+    begin
+        if x > 1 then
+            return x * Factorial(x - 1);
+        else
+            return 1;
+    end;
+    
+declare function FactorialIter(x)
+    begin
+        declare integer as fact;
+        fact = 1;
+        
+        while (x > 1) do
+            begin
+                fact = fact * x;
+                x = x - 1;
+            end;
+            
+        return fact;
+    end;
+    
+Println("OK");
+Read();
+
+Print("Defining global variables... ");
+
+declare integer as x;
+x = 2^16;
+lock x;
+
+declare integer as y;
+y = 2;
+lock y;
+
+declare integer as z;
+z = x * y;
+lock z;
+    
+Println("OK");
+Read();
+
+`Newln();
+`Newln();
+
+Println("z = " + z);
+Println(" integer size = " + z.size);
+Println("integer bytes = " + z.bytes);
+
+`Newln();
+
+begin
+    declare array[1 to 10] of integer as A;
+    declare integer as i;
+    
+    for i = 1 to 10
+        A[i] = i;
+    lock A;
+
+    for i = 1 to 10
+        Println("A[" + AsString(i) + "] = " + A[i]);
+end;
+
+`Newln();
+
+begin
+    declare array[1 to 10] of integer as A;
+    declare integer as i;
+    
+    for i = 10 to 1 step -4
+        A[i] = i;
+    lock A;
+
+    for i = 1 to 10
+        Println("A[" + AsString(i) + "] = " + A[i]);
+end;
+
+`Newln();
+
+if z <= 100 then
+    Println("z <= 100");
+else
+    begin
+        Print("z");
+        Print(" > ");
+        Println("100");
+    end;
+
+`Newln();
+    
+`Println("10^2 = " + Square(10));
+
+`Newln();
+    
+`Println(" 1! = " + Factorial(1));
+`Println(" 2! = " + Factorial(2));
+`Println(" 3! = " + Factorial(3));
+`Println(" 4! = " + Factorial(4));
+`Println(" 5! = " + Factorial(5));
+`Println(" 6! = " + Factorial(6));
+`Println(" 7! = " + Factorial(7));
+`Println(" 8! = " + Factorial(8));
+`Println(" 9! = " + Factorial(9));
+`Println("10! = " + Factorial(10));
+
+`Newln();
+    
+`Println(" 1! = " + FactorialIter(1));
+`Println(" 2! = " + FactorialIter(2));
+`Println(" 3! = " + FactorialIter(3));
+`Println(" 4! = " + FactorialIter(4));
+`Println(" 5! = " + FactorialIter(5));
+`Println(" 6! = " + FactorialIter(6));
+`Println(" 7! = " + FactorialIter(7));
+`Println(" 8! = " + FactorialIter(8));
+`Println(" 9! = " + FactorialIter(9));
+`Println("10! = " + FactorialIter(10));
+
+`Newln();
+
+`Println("10! = " + (10 * 9 * 8 * 7 * 6 * 5 * 4 * 3 * 2 * 1));
+
+`Newln();
+
+Println("A"[0]);
+

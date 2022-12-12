@@ -1,0 +1,7 @@
+Println("Hello!");
+
+import "lib.dish";
+
+Println("10! = " + Factorial(10));
+Println("15! = " + Factorial(15));
+

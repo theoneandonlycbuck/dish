@@ -1,0 +1,23 @@
+
+declare integer as x = 0;
+
+declare function Foo(n)
+    begin
+        #declare integer as x = :x + 1;
+        declare integer as x = n + 1;
+        lock x;
+        
+        #Println("x = " + x + "; :x = " + :x);
+        Println("x = " + x);
+        
+        if n > 0 then
+            Foo(n - 1);
+        else
+            begin
+                Newln();
+                PrintSymbolTableStats();
+            end;
+    end;
+    
+Foo(5);
+

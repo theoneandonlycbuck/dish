@@ -1,0 +1,51 @@
+declare integer as WINDOW_WIDTH = 800;
+lock WINDOW_WIDTH;
+
+declare integer as WINDOW_HEIGHT = 600;
+lock WINDOW_HEIGHT;
+
+##############################################################################
+
+declare reference gc = GRAPH_CreateContext(WINDOW_WIDTH, WINDOW_HEIGHT, "Graphics Test");
+GRAPH_Start(gc);
+
+
+
+while not KeyPressed() do
+    begin
+        declare integer as width = RandomInteger() % (WINDOW_WIDTH - 100);
+        declare integer as height = RandomInteger() % (WINDOW_HEIGHT - 75);
+        
+        declare integer as x = RandomInteger() % (WINDOW_WIDTH - width);
+        declare integer as y = RandomInteger() % (WINDOW_HEIGHT - height);
+        
+        gc.ForegroundColor = GRAPH_MakeColor(gc, RandomInteger(0, 255), RandomInteger(0, 255), RandomInteger(0, 255));
+        GRAPH_ApplyContext(gc);
+        
+        if RandomBoolean() then
+            GRAPH_DrawBox(gc, x, y, x + width, y + height, GRAPH_FILL);
+        else if RandomBoolean() then
+            GRAPH_DrawArc(gc, x, y, x + width, y + height, 0.0, 2.0 * PI, GRAPH_FILL);
+        else
+            begin
+                declare real as startang = RandomReal(0.0, 2.0 * PI);
+            
+                GRAPH_DrawArc(
+                    gc, 
+                    x, y, 
+                    x + width, y + height, 
+                    startang, 
+                    RandomReal(startang, 2.0 * PI), 
+                    GRAPH_FILL
+                );
+            end;
+        
+        GRAPH_Refresh();
+        
+        Sleep(0.05);
+    end;
+    
+    
+
+GRAPH_End();
+

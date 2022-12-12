@@ -1,0 +1,33 @@
+declare integer as handle;
+
+################################################################################
+
+handle = FileOpen("test.txt", FILE_WRITE);
+FileWriteln(handle, true);
+FileWriteln(handle, 1);
+FileWriteln(handle, 3.14159);
+FileWriteln(handle, "This is a string.");
+FileClose(handle);
+
+################################################################################
+
+declare string as text;
+
+handle = FileOpen("test.txt", FILE_READ);
+text = FileReadText(handle);
+FileClose(handle);
+
+Println(text);
+
+################################################################################
+
+handle = FileOpen("test.txt", FILE_READ);
+Println(FileReadBoolean(handle));
+Println(FileReadInteger(handle));
+Println(FileReadReal(handle));
+FileReadln(handle); #  << reads the newline that follows the real-value
+Println(FileReadln(handle));
+FileClose(handle);
+
+################################################################################
+

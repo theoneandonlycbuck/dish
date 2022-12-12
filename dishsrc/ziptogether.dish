@@ -1,0 +1,68 @@
+
+declare integer as i;
+
+declare array[1 to 10] of integer as A;
+i = A.start - 1;
+foreach &a in A
+    a = Inc(i);
+lock A;
+    
+declare array[0 to 9] of integer as E;
+i = E.start - 1;
+foreach &e in E
+    e = Inc(i);
+lock E;
+    
+declare array[2 to 11] of integer as F;
+i = F.start - 1;
+foreach &f in F
+    f = Inc(i);
+lock F;
+    
+Println();
+Println("+----------------------------------------+");
+Println();
+  
+begin
+    Println("E: [" + AsString(E.start) + ", " + AsString(E.finish) + "]");
+    Println("F: [" + AsString(F.start) + ", " + AsString(F.finish) + "]");
+
+    declare reference tmp = ZipTogether(10, A, E, F);
+    
+    Println("*[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println(
+            AsString(i) + ". " +
+            AsString(tmp[i].one) + "  " + 
+            AsString(tmp[i].two) + "  " + 
+            AsString(tmp[i].three) + "  |  " + 
+            AsString(tmp[i].arrayof[1]) + "  " + 
+            AsString(tmp[i].arrayof[2]) + "  " + 
+            AsString(tmp[i].arrayof[3])
+        );
+end;
+    
+Println();
+Println("+----------------------------------------+");
+Println();
+    
+begin
+    declare reference tmp = ZipTogether(ZipValue(100), E, F);
+    
+    Println("[ " + tmp.start + ", " + tmp.finish + " ]");
+    for i = tmp.start to tmp.finish
+        Println(
+            AsString(i) + ".  " + 
+            AsString(tmp[i].one) + "  " + 
+            AsString(tmp[i].two) + "  " + 
+            AsString(tmp[i].three) + "  " + 
+            AsString(tmp[i].arrayof[1]) + "  " + 
+            AsString(tmp[i].arrayof[2]) + "  " + 
+            AsString(tmp[i].arrayof[3])
+        );
+end;
+     
+Println();
+Println("+----------------------------------------+");
+Println();
+

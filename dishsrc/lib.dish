@@ -1,0 +1,82 @@
+declare function Sqr(&x)
+    begin
+        return x * x;
+    end;
+
+declare function FindRoots(a, b, c, &r1, &r2)
+    begin
+        declare real as tmp;
+        tmp = b * b - 4.0 * a * c;
+        lock tmp;
+        
+        if tmp < 0 then
+            return 0;
+            
+        else if tmp == 0 then
+            begin
+                r1 = -b / (2 * a);
+                
+                return 1;
+            end;
+            
+        else
+            begin
+                r1 = (-b + Sqrt(tmp)) / (2 * a);
+                r2 = (-b - Sqrt(tmp)) / (2 * a);
+                
+                return 2;
+            end;
+            
+        return `NULL;
+    end;
+    
+declare function Factorial(x)
+    begin
+        switch(x)
+            0, 1:
+                return 1;
+                
+            2:
+                return 2;
+                
+            3:
+                return 3 * 2;
+                
+            4:
+                return 4 * 3 * 2;
+                
+            5:
+                return 5 * 4 * 3 * 2;
+                
+            6:
+                return 6 * 5 * 4 * 3 * 2;
+                
+            7:
+                return 7 * 6 * 5 * 4 * 3 * 2;
+                
+            8:
+                return 8 * 7 * 6 * 5 * 4 * 3 * 2;
+                
+            9:
+                return 9 * 8 * 7 * 6 * 5 * 4 * 3 * 2;
+                
+            "10":
+                return 10 * 9 * 8 * 7 * 6 * 5 * 4 * 3 * 2;
+                
+            otherwise:
+                begin
+                    declare integer as fact;
+                    fact = 1;
+                    
+                    while x > 1 do
+                        begin
+                            fact = fact * x;
+                            x = x - 1;
+                        end;
+                        
+                    return fact;
+                end;
+                
+        end;
+    end;
+

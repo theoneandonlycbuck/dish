@@ -1,0 +1,916 @@
+import "item.dish";
+import "map.dish";
+import "pc.dish";
+import "treasure.dish";
+
+################################################################################
+
+declare function UI_ProcessEmptyCell(&cell)
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        switch cell.Parameter
+            1:
+                Print("This room is completely empty, save for some dust on the floor.");
+                
+            2:
+                Print("Broken furniture is scattered about an otherwise empty room.");
+                
+            3:
+                Print("Broken bones and rusty weapons are all that remain of a long-ago battle.");
+                
+            4:
+                Print("Blood is drying on the floor; whatever happened here happened not long ago.");
+                
+            5:
+                Print("Nothing is what you find in this empty room.");
+                
+            6:
+                Print("Nothing, nothing, and more nothing!");
+                
+            7:
+                Print("There is nothing but an empty chest in this room.");
+                
+            BOOK_IN_CELL_READ:
+                Print("There is nothing but a book you have already read in this room.");
+            
+            CHEST_IN_CELL_OPENED:
+                Print("The open chest in the room has already been plundered.");
+                
+            POOL_IN_CELL_BATHED_IN:
+                Print("The water in the pool looks like tepid bathwater, you have already bathed.");
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+        
+        return true;
+    end;
+
+################################################################################
+
+declare function UI_OpenChest(&cell, &adjlvl)
+    begin
+        declare DamageT as dmg;
+        declare string as traptypestr;
+        declare string as dmgtypestr;
+    
+        switch cell.Parameter
+            TRAP_None:
+                begin
+                    #  Do nothing
+                end;
+        
+            TRAP_CrossbowBolt:
+                begin
+                    dmg.PhyDamage = D6(adjlvl);
+                    traptypestr = "Crossbow Bolt!";
+                    dmgtypestr = "physical";
+                end;
+                
+            TRAP_FireBall:
+                begin
+                    dmg.FireDamage = D6(adjlvl);
+                    traptypestr = "Fire Ball!";
+                    dmgtypestr = "fire";
+                end;
+                
+            TRAP_PoisonNeedle:
+                begin
+                    dmg.PoisonDamage = D6(adjlvl);
+                    traptypestr = "Poison Needle!";
+                    dmgtypestr = "poison";
+                end;
+                
+            TRAP_SnowBall:
+                begin
+                    dmg.ColdDamage = D6(adjlvl);
+                    traptypestr = "Snow Ball!";
+                    dmgtypestr = "cold";
+                end;
+                
+            TRAP_ElectricBolt:
+                begin
+                    dmg.ElectricDamage = D6(adjlvl);
+                    traptypestr = "Electric Bolt!";
+                    dmgtypestr = "electric";
+                end;
+                
+            TRAP_MagicBolt:
+                begin
+                    dmg.MagicDamage = D6(adjlvl);
+                    traptypestr = "Magic Bolt!";
+                    dmgtypestr = "magic";
+                end;
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+        
+        declare integer as row = 18;
+        
+        if 0 < SumDamage(dmg) then
+            begin
+                ApplyDamageToPC(PC, dmg);
+                
+                UI_ClearInformationArea();
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                TEXTIO_MoveTo(3, row);
+                Print(traptypestr + " " + PC.Name + " takes " + SumDamage(dmg) + " " + dmgtypestr + " damage.");
+                
+                Inc(row);
+                
+                if PC.HP <= 0 then
+                    begin
+                        UI_DialogBox(
+                            "The sounds of the tower fade into nothingness. " + PC.Name + " has died!",
+                            "Press any key to continue...",
+                            STRPRINTABLECHARS
+                        );
+                        
+                        Terminate();
+                    end;
+            end;
+        
+        declare TreasureT as treasure;
+        RollTreasure(adjlvl, treasure);
+            
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, row);
+        Print(PC.Name + " found " + FormatTreasureString(treasure) + " (" + treasure.Level + ").");
+        
+        Inc(PC.Gold, treasure.Gold);
+        Inc(PC.Food, treasure.Food);
+        Inc(PC.Flares, treasure.Flares);
+        
+        if ITEM_None != treasure.Weapon then
+            begin
+                TEXTIO_AttrNormal();
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                TEXTIO_MoveTo(3, row);
+                Inc(row);
+                
+                Print("Replace " + PC.Name + "'s " + WeaponList[PC.EqWeapon].Name + " with " + WeaponList[treasure.Weapon].Name + " (Y/N)?");
+                
+                declare integer as ch;
+        
+                repeat
+                    ch = ToUpperCase(ReadCh());
+                until (Ord("Y") == ch) or (Ord("N") == ch);
+                
+                if Ord("Y") == ch then
+                    PC.EqWeapon = treasure.Weapon;
+            end;
+        
+        if ITEM_None != treasure.Armor then
+            begin
+                TEXTIO_AttrNormal();
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                TEXTIO_MoveTo(3, row);
+                Inc(row);
+                
+                Print("Replace " + PC.Name + "'s " + ArmorList[PC.EqArmor].Name + " with " + ArmorList[treasure.Armor].Name + " (Y/N)?");
+                
+                declare integer as ch;
+        
+                repeat
+                    ch = ToUpperCase(ReadCh());
+                until (Ord("Y") == ch) or (Ord("N") == ch);
+                
+                if Ord("Y") == ch then
+                    PC.EqArmor = treasure.Armor;
+            end;
+        
+        if ITEM_None != treasure.Misc then
+            begin
+                TEXTIO_AttrNormal();
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                TEXTIO_MoveTo(3, row);
+                Inc(row);
+                
+                Print("Replace " + PC.Name + "'s " + MiscItemList[PC.EqMisc].Name + " with " + MiscItemList[treasure.Misc].Name + " (Y/N)?");
+                
+                declare integer as ch;
+        
+                repeat
+                    ch = ToUpperCase(ReadCh());
+                until (Ord("Y") == ch) or (Ord("N") == ch);
+                
+                if Ord("Y") == ch then
+                    PC.EqMisc = treasure.Misc;
+            end;
+        
+        Inc(XpThisRound, adjlvl);
+        
+        cell.Contents = MAP_Empty;
+        cell.Parameter = CHEST_IN_CELL_OPENED;
+        
+        Inc(MapStatistics.OpenedChests);
+        
+        Inc(row);
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, row);
+        Print("Press any key to continue...");
+        ReadCh();
+        
+        UI_ClearInformationArea();
+    end;
+    
+declare function UI_InspectChest(&cell, &adjlvl)
+    begin
+        UI_ClearInformationArea();
+    
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        
+        declare integer as detect_chance = 50;
+        Inc(detect_chance, 5 * (PC.Level - adjlvl));
+        Inc(detect_chance, DetectTrapBonusPC(PC));
+        
+        if TestChance(detect_chance) then
+            Print("Looks like a " + TRAP_Strings[cell.Parameter] + ".");
+        else
+            Print("Looks like a " + TRAP_Strings[RandomInteger(TRAP_Strings.start, TRAP_Strings.finish)] + ".");
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 21);
+        Print("Press any key to continue...");
+        
+        ReadCh();
+    end;
+
+declare function UI_ProcessChestCell(&cell, &adjlvl)
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        Print("This room contains a large chest, would you like to try to open it (Y/N)?");
+        
+        declare integer as ch;
+        
+        repeat
+            ch = ToUpperCase(ReadCh());
+        until (Ord("Y") == ch) or (Ord("N") == ch);
+        
+        if Ord("Y") == ch then
+            begin
+                declare boolean as done = false;
+                declare boolean as already_inspected = false;
+            
+                while not done do
+                    begin
+                        UI_ClearInformationArea();
+                    
+                        TEXTIO_AttrNormal();
+                        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                        TEXTIO_MoveTo(3, 19);
+                        Print("Would you like to (O)pen, (I)nspect, (D)isarm, or (L)eave the chest?");
+                        
+                        switch ToUpperCase(ReadCh())
+                            Ord("O"):
+                                begin
+                                    UI_OpenChest(cell, adjlvl);
+                                    done = true;
+                                end;
+                                
+                            Ord("I"):
+                                begin
+                                    if not already_inspected then
+                                        begin
+                                            UI_InspectChest(cell, adjlvl);
+                                            already_inspected = true;
+                                        end;
+                                    else
+                                        begin
+                                            UI_ClearInformationArea();
+                                        
+                                            TEXTIO_AttrNormal();
+                                            TEXTIO_MoveTo(3, 19);
+                                            Print("You already looked!");
+        
+                                            TEXTIO_AttrNormal();
+                                            TEXTIO_MoveTo(3, 21);
+                                            Print("Press any key to continue...");
+                                            
+                                            ReadCh();
+                                        end;
+                                end;
+                                
+                            Ord("D"):
+                                begin
+                                    UI_ClearInformationArea();
+                            
+                                    TEXTIO_AttrNormal();
+                                    TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                                    TEXTIO_MoveTo(3, 19);
+                                    Print("Disarm what trap: ");
+                                    TEXTIO_Refresh();
+                                    
+                                    declare string as trap = ToUpperCase(Readln());
+                                    
+                                    if ToUpperCase(TRAP_Strings[cell.Parameter]) == trap then
+                                        begin
+                                            declare integer as disarm_chance = 50;
+                                            Inc(disarm_chance, 5 * (PC.Level - adjlvl));
+                                            Inc(disarm_chance, DisarmTrapBonusPC(PC));
+                                            if disarm_chance < 15 then
+                                                disarm_chance = 15;
+                                            
+                                            if TestChance(disarm_chance) then
+                                                cell.Parameter = TRAP_None;
+                                        end;
+                                        
+                                    UI_OpenChest(cell, adjlvl);
+                                    done = true;
+                                end;
+                                
+                            Ord("L"):
+                                begin
+                                    done = true;
+                                    UI_ClearInformationArea();
+                                end;
+                                
+                            otherwise:
+                                ;
+                                
+                        end;
+                    end;
+                
+            end;
+        else
+            UI_ClearInformationArea();
+        
+        return true;
+    end;
+
+################################################################################
+
+declare function UI_Book_Worthless()
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        switch D6()
+            1:
+                Print("You found a Sears catalog from " + (1960 + D12(2)) + ".");
+                
+            2:
+                Print("You found an old copy of Play Orc (yikes!).");
+                
+            3:
+                Print('"Proper Care and Maintenance of your Moat Bridge"');
+                
+            4:
+                Print("You found a National Geographic from " + MonthsOfTheYear[D12()] + ", " + (1900 + D100()) + ".");
+                
+            5:
+                Print('"To Serve Man" (whoa!)');
+                
+            6:
+                Print("Whatever this book once was it is now indecipherable.");
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+    end;
+    
+declare function UI_Book_Map()
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        Print("You found a map of the current level!");
+        
+        declare integer as x;
+        declare integer as y;
+        
+        for y = Map[Location.Level].start to Map[Location.Level].finish
+            for x = Map[Location.Level][y].start to Map[Location.Level][y].finish
+                Map[Location.Level][y][x].Visited = true;
+    end;
+    
+declare function UI_Book_AttributeManual()
+    begin
+        declare integer as amt = D6();
+        declare integer as attr = RandomInteger(PC.PhyAttr.start, PC.PhyAttr.finish);
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        Print(
+            "A " + 
+            ToUpperCase(PC.PhyAttr[attr].Name) + 
+            " manual! Your " + 
+            ToLowerCase(PC.PhyAttr[attr].Name) + 
+            " increased by " + 
+            amt + 
+            "!"
+        );
+        
+        Inc(PC.PhyAttr[attr].Value, amt);
+    end;
+    
+declare function UI_Book_SavingThrowManual()
+    begin
+        declare integer as amt = D6();
+        declare integer as attr = RandomInteger(PC.SaveAttr.start, PC.SaveAttr.finish);
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        Print(
+            "A " + 
+            ToUpperCase(PC.SaveAttr[attr].Name) + 
+            " manual! Your " + 
+            ToLowerCase(PC.SaveAttr[attr].Name) + 
+            " increased by " + 
+            amt + 
+            "!"
+        );
+        
+        Inc(PC.SaveAttr[attr].Value, amt);
+    end;
+    
+declare function UI_Book_Spell()
+    begin
+        #
+        #   Choose the spell in the book
+        #
+        
+        declare integer as roll = RandomInteger(0, SpellChanceTable[SpellChanceTable.finish]);
+        declare integer as i = SpellChanceTable.start;
+        
+        while roll > SpellChanceTable[i] do
+            Inc(i);
+        
+        #
+        #   The PC has learned a new spell!
+        #
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        if not PC.SpellBook[i] then
+            begin
+                PC.SpellBook[i] = true;
+                
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                
+                Print(PC.Name + " has learned the spell " + SpellList[i].Name + ".");
+            end;
+        else
+            Print("The book teaches the reader the spell " + SpellList[i].Name + ".");
+    end;
+    
+declare function UI_Book_Cursed()
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+        TEXTIO_MoveTo(3, 19);
+        
+        switch D4()
+            1:
+                begin
+                    Print("Cursed! " + PC.Name + "'s magic points are drained!");
+                    PC.MP = 0;
+                end;
+                
+            2:
+                begin
+                    declare integer as amt = D6();
+                    declare integer as attr = RandomInteger(PC.PhyAttr.start, PC.PhyAttr.finish);
+                    
+                    Print("Cursed! " + PC.Name + "'s " + ToLowerCase(PC.PhyAttr[attr].Name) + " is drained!");
+                    
+                    if amt < PC.PhyAttr[attr].Value then
+                        Dec(PC.PhyAttr[attr].Value, amt);
+                    else
+                        PC.PhyAttr[attr].Value = 1;
+                end;
+                
+            3:
+                begin
+                    declare integer as amt = D6();
+                    declare integer as attr = RandomInteger(PC.SaveAttr.start, PC.SaveAttr.finish);
+                    
+                    Print("Cursed! " + PC.Name + "'s " + ToLowerCase(PC.SaveAttr[attr].Name) + " is drained!");
+                    
+                    if amt < PC.SaveAttr[attr].Value then
+                        Dec(PC.SaveAttr[attr].Value, amt);
+                    else
+                        PC.SaveAttr[attr].Value = 1;
+                end;
+                
+            4:
+                begin
+                    declare reference spells = {};
+                    declare integer as i;
+                    
+                    for i = PC.SpellBook.start to PC.SpellBook.finish
+                        if PC.SpellBook[i] then
+                            Append(spells, i);
+                            
+                    if spells.length > 0 then
+                        begin
+                            i = RandomInteger(spells.start, spells.finish);
+                            
+                            Print("Cursed! " + PC.Name + " forgot the spell " + SpellList[i].Name + "!");
+                            PC.SpellBook[i] = false;
+                        end;
+                    else
+                        Print("Cursed! " + PC.Name + "'s forgot a spell but did not know any to begin with!");
+                end;
+            
+            otherwise:
+                Assert(false);
+                    
+        end;
+    end;
+
+declare function UI_ProcessBookCell(&cell)
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        Print("This room contains a book on a pedastel, would you like to read it (Y/N)?");
+        
+        declare integer as ch;
+        
+        repeat
+            ch = ToUpperCase(ReadCh());
+        until (Ord("Y") == ch) or (Ord("N") == ch);
+        
+        UI_ClearInformationArea();
+        
+        if Ord("Y") == ch then
+            begin
+                declare integer as roll = D100();
+                
+                if roll <= 35 then
+                    UI_Book_Worthless();
+                    
+                else if roll <= 45 then
+                    UI_Book_Map();
+                    
+                else if roll <= 60 then
+                    UI_Book_AttributeManual();
+                    
+                else if roll <= 75 then
+                    UI_Book_SavingThrowManual();
+                    
+                else if roll <= 95 then
+                    UI_Book_Spell();
+                    
+                else
+                    UI_Book_Cursed();
+                    
+                cell.Contents = MAP_Empty;
+                cell.Parameter = BOOK_IN_CELL_READ;
+                
+                Inc(MapStatistics.ReadBooks);
+                
+                Inc(XpThisRound, 1);
+            end;
+        
+        return true;
+    end;
+
+################################################################################
+
+declare function UI_Pool_Worthless()
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        switch D4()
+            1:
+                Print("The water is cool and refreshing but has no other effect.");
+                
+            2:
+                Print("The water is warm and soothing but has no other effect.");
+                
+            3:
+                Print("The water smells like an old troll bath, and now " + PC.Name + " does too.");
+                
+            4:
+                Print("The water smells and tastes like mouthwash, " + PC.Name + " is now minty-fresh.");
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+    end;
+
+declare function UI_Pool_HealHP()
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        if PC.HP < PC.MaxHP then
+            begin
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                
+                Print("The water is warm and tingly, and " + PC.Name + " is healed!");
+                
+                PC.HP = PC.MaxHP;
+            end;
+        else
+            Print("The water is warm and tingly.");
+    end;
+
+declare function UI_Pool_HealMP()
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        if PC.MP < PC.MaxMP then
+            begin
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                
+                Print("The water is cool and tingly, and " + PC.Name + " is restored!");
+                
+                PC.MP = PC.MaxMP;
+            end;
+        else
+            Print("The water is cool and tingly.");
+    end;
+
+declare function UI_Pool_IncreasePhysicalAttribute()
+    begin
+        declare integer as amt = D6();
+        declare integer as attr = RandomInteger(PC.PhyAttr.start, PC.PhyAttr.finish);
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        Print("A " + ToUpperCase(PC.PhyAttr[attr].Name) + " bath! Your " + ToLowerCase(PC.PhyAttr[attr].Name) + " increased by " + amt + "!");
+        
+        Inc(PC.PhyAttr[attr].Value, amt);
+    end;
+
+declare function UI_Pool_IncreaseSavingThrowAttribute()
+    begin
+        declare integer as amt = D6();
+        declare integer as attr = RandomInteger(PC.SaveAttr.start, PC.SaveAttr.finish);
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        Print("A " + ToUpperCase(PC.SaveAttr[attr].Name) + " bath! Your " + ToLowerCase(PC.SaveAttr[attr].Name) + " increased by " + amt + "!");
+        
+        Inc(PC.SaveAttr[attr].Value, amt);
+    end;
+
+declare function UI_Pool_Cursed()
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+        TEXTIO_MoveTo(3, 19);
+        
+        switch D8()
+            1, 2, 3:
+                begin
+                    declare DamageT as dmg;
+                    declare string as dmgtype;
+                    
+                    switch D6()
+                        1:
+                            begin
+                                dmg.PhyDamage = D6(D2());
+                                dmgtype = "physical";
+                            end;
+                            
+                        2:
+                            begin
+                                dmg.FireDamage = D6(D2());
+                                dmgtype = "fire";
+                            end;
+                        
+                        3:
+                            begin
+                                dmg.PoisonDamage = D6(D2());
+                                dmgtype = "poison";
+                            end;
+                        
+                        4:
+                            begin
+                                dmg.ColdDamage = D6(D2());
+                                dmgtype = "cold";
+                            end; 
+                        
+                        5:
+                            begin
+                                dmg.ElectricDamage = D6(D2());
+                                dmgtype = "electric";
+                            end; 
+                        
+                        6:
+                            begin
+                                dmg.MagicDamage = D6(D2());
+                                dmgtype = "magic";
+                            end;
+                        
+                        otherwise:
+                            Assert(false);
+                            
+                    end;
+                    
+                    ApplyDamageToPC(PC, dmg);
+                    
+                    Print(PC.Name + " receives " + SumDamage(dmg) + " " + dmgtype + " damage.");
+                    
+                    if PC.HP <= 0 then
+                        begin
+                            UI_DialogBox(
+                                "The sounds of the tower fade into nothingness. " + PC.Name + " has died!",
+                                "Press any key to continue...",
+                                STRPRINTABLECHARS
+                            );
+                            
+                            Terminate();
+                        end;
+                end;
+                
+            4, 5, 6:
+                begin
+                    Print(PC.Name + "'s magic points are drained!");
+                    PC.MP = 0;
+                end;
+                
+            7:
+                begin
+                    declare integer as amt = D6();
+                    declare integer as attr = RandomInteger(PC.PhyAttr.start, PC.PhyAttr.finish);
+                    
+                    Print(PC.Name + "'s " + ToLowerCase(PC.PhyAttr[attr].Name) + " is drained!");
+                    
+                    if amt < PC.PhyAttr[attr].Value then
+                        Dec(PC.PhyAttr[attr].Value, amt);
+                    else
+                        PC.PhyAttr[attr].Value = 1;
+                end;
+                
+            8:
+                begin
+                    declare integer as amt = D6();
+                    declare integer as attr = RandomInteger(PC.SaveAttr.start, PC.SaveAttr.finish);
+                    
+                    Print(PC.Name + "'s " + ToLowerCase(PC.SaveAttr[attr].Name) + " is drained!");
+                    
+                    if amt < PC.SaveAttr[attr].Value then
+                        Dec(PC.SaveAttr[attr].Value, amt);
+                    else
+                        PC.SaveAttr[attr].Value = 1;
+                end;
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+    end;
+
+declare function UI_ProcessPoolCell(&cell)
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        Print("This room contains a pool of strange liquid, would you like to bathe (Y/N)?");
+        
+        declare integer as ch;
+        
+        repeat
+            ch = ToUpperCase(ReadCh());
+        until (Ord("Y") == ch) or (Ord("N") == ch);
+        
+        UI_ClearInformationArea();
+        
+        if Ord("Y") == ch then
+            begin
+                declare integer as roll = D100();
+                
+                if roll <= 35 then
+                    UI_Pool_Worthless();
+                    
+                else if roll <= 60 then
+                    UI_Pool_HealHP();
+                    
+                else if roll <= 85 then
+                    UI_Pool_HealMP();
+                    
+                else if roll <= 90 then
+                    UI_Pool_IncreasePhysicalAttribute();
+                    
+                else if roll <= 90 then
+                    UI_Pool_IncreaseSavingThrowAttribute();
+                    
+                else
+                    UI_Pool_Cursed();
+                    
+                cell.Contents = MAP_Empty;
+                cell.Parameter = POOL_IN_CELL_BATHED_IN;
+                
+                Inc(MapStatistics.BathedPools);
+                
+                Inc(XpThisRound, 1);
+            end;
+        
+        return true;
+    end;
+
+################################################################################
+
+declare function UI_ProcessVendor(&adjlvl)
+    begin
+        
+        return true;
+    end;
+
+################################################################################
+
+declare function UI_ProcessStairsUpCell(&cell)
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        switch cell.Parameter
+            1:
+                Print("In this room there are stairs going up.");
+                
+            2:
+                Print("There is a hole in the ceiling with a rope.");
+                
+            3:
+                Print("There is a crevice in the ceiling and a stool on the floor to stand on.");
+                
+            4:
+                Print("There is an ornate staircase in this room going up.");
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+        
+        return true;
+    end;
+
+################################################################################
+
+declare function UI_ProcessStairsDownCell(&cell)
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        
+        switch cell.Parameter
+            1:
+                Print("In this room there are stairs going down.");
+                
+            2:
+                Print("There is a hole in the floor with a rope.");
+                
+            3:
+                Print("There is a crevice in the floor big enough to crawl through.");
+                
+            4:
+                Print("There is an ornate staircase in this room going down.");
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+        
+        return true;
+    end;
+
+################################################################################
+
+declare function UI_ProcessExitCell(&cell)
+    begin
+        TEXTIO_AttrNormal();
+        TEXTIO_MoveTo(3, 19);
+        Print("Fresh air and daylight stream through a passage! You have found the exit!");
+        
+        return true;
+    end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

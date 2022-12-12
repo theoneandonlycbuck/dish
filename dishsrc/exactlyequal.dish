@@ -1,0 +1,211 @@
+declare boolean as BOOLEAN_FALSE = false;
+lock BOOLEAN_FALSE;
+
+declare boolean as BOOLEAN_TRUE = true;
+lock BOOLEAN_TRUE;
+
+declare reference BOOLEAN_REF = BOOLEAN_FALSE;
+
+###
+
+declare integer as INTEGER_ZERO = 0;
+lock INTEGER_ZERO;
+
+declare integer as INTEGER_ONE = 1;
+lock INTEGER_ONE;
+
+declare reference INTEGER_REF = INTEGER_ZERO;
+
+###
+
+declare real as REAL_ZERO = 0.0;
+lock REAL_ZERO;
+
+declare real as REAL_ONE = 1.0;
+lock REAL_ONE;
+
+declare reference REAL_REF = REAL_ZERO;
+
+declare real as REAL_EXPR = 1.0 - RealEps;
+lock REAL_EXPR;
+
+###
+
+declare string as STRING_FALSE = False;
+lock STRING_FALSE;
+
+declare string as STRING_TRUE = True;
+lock STRING_TRUE;
+
+declare string as STRING_ZERO = "0";
+lock STRING_ZERO;
+
+declare string as STRING_ONE = "1";
+lock STRING_ONE;
+
+declare string as STRING_THIS = "THIS";
+lock STRING_THIS;
+
+declare string as STRING_this = "this";
+lock STRING_this;
+
+declare reference STRING_REF = STRING_THIS;
+
+################################################################################
+
+Println("Boolean:");
+
+Print("    " + BOOLEAN_FALSE + " same as " + BOOLEAN_FALSE + ": ");
+if IsExactlyEqual(BOOLEAN_FALSE, BOOLEAN_FALSE) then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + BOOLEAN_FALSE + " not same a " + BOOLEAN_TRUE + ": ");
+if IsExactlyEqual(BOOLEAN_FALSE, BOOLEAN_TRUE) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+Print("    " + BOOLEAN_FALSE + " same as &" + BOOLEAN_REF + ": ");
+if IsExactlyEqual(BOOLEAN_FALSE, BOOLEAN_REF) then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + BOOLEAN_TRUE + " not same a &" + BOOLEAN_REF + ": ");
+if IsExactlyEqual(BOOLEAN_TRUE, BOOLEAN_REF) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+###
+Newln();
+###
+
+Println("Integer:");
+
+Print("    " + INTEGER_ZERO + " same as " + INTEGER_ZERO + ": ");
+if IsExactlyEqual(INTEGER_ZERO, INTEGER_ZERO) then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + INTEGER_ZERO + " not same as " + INTEGER_ONE + ": ");
+if IsExactlyEqual(INTEGER_ZERO, INTEGER_ONE) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+Print("    " + INTEGER_ZERO + " same as &" + INTEGER_REF + ": ");
+if IsExactlyEqual(INTEGER_ZERO, INTEGER_REF) then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + INTEGER_ONE + " not same as &" + INTEGER_REF + ": ");
+if IsExactlyEqual(INTEGER_ONE, INTEGER_REF) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+###
+Newln();
+###
+
+Println("Real:");
+
+Print("    " + REAL_ZERO + " same as " + REAL_ZERO + ": ");
+if IsExactlyEqual(REAL_ZERO, REAL_ZERO) then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + REAL_ZERO + " not same as " + REAL_ONE + ": ");
+if IsExactlyEqual(REAL_ZERO, REAL_ONE) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+Print("    " + REAL_ZERO + " same as &" + REAL_REF + ": ");
+if IsExactlyEqual(REAL_ZERO, REAL_REF) then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + REAL_ONE + " not same as &" + REAL_REF + ": ");
+if IsExactlyEqual(REAL_ONE, REAL_REF) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+Print("    " + REAL_ONE + " not same as " + REAL_EXPR + ": ");
+if IsExactlyEqual(REAL_ONE, REAL_EXPR) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+Print("    " + REAL_ONE + " == " + REAL_EXPR + ": ");
+if REAL_ONE == REAL_EXPR then
+    Println("PASS");
+else
+    Println("FAIL");
+    
+###
+Newln();
+###
+
+Println("Mixed:");
+
+Print("    " + BOOLEAN_FALSE + " not same as " + INTEGER_ZERO + ": ");
+if IsExactlyEqual(BOOLEAN_FALSE, INTEGER_ZERO) then
+    Println("FAIL");
+else
+    Println("PASS");
+    
+Print("    " + BOOLEAN_FALSE + " == " + INTEGER_ZERO + ": ");
+if BOOLEAN_FALSE == INTEGER_ZERO then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + BOOLEAN_FALSE + " not same as " + REAL_ZERO + ": ");
+if IsExactlyEqual(BOOLEAN_FALSE, REAL_ZERO) then
+    Println("FAIL");
+else
+    Println("PASS");
+
+Print("    " + BOOLEAN_TRUE + " not same as " + INTEGER_ONE + ": ");
+if IsExactlyEqual(BOOLEAN_TRUE, INTEGER_ONE) then
+    Println("FAIL");
+else
+    Println("PASS");
+
+Print("    " + BOOLEAN_TRUE + " == " + INTEGER_ONE + ": ");
+if BOOLEAN_TRUE == INTEGER_ONE then
+    Println("PASS");
+else
+    Println("FAIL");
+
+Print("    " + BOOLEAN_FALSE + " not same as " + REAL_ZERO + ": ");
+if IsExactlyEqual(BOOLEAN_FALSE, REAL_ZERO) then
+    Println("FAIL");
+else
+    Println("PASS");
+
+Print("    " + BOOLEAN_FALSE + " not same as " + STRING_FALSE + ": ");
+if IsExactlyEqual(BOOLEAN_FALSE, STRING_FALSE) then
+    Println("FAIL");
+else
+    Println("PASS");
+
+Print("    " + BOOLEAN_FALSE + " == " + STRING_FALSE + ": ");
+if BOOLEAN_FALSE == STRING_FALSE then
+    Println("PASS");
+else
+    Println("FAIL");
+    
+###
+Newln();
+###
+

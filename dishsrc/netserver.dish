@@ -1,0 +1,25 @@
+declare boolean as done = false;
+
+while not done do
+    begin
+        Println("Opening server socket and waiting for connection...");
+        declare integer as handle = NetworkOpenServerSocket(12345);
+        
+        declare string as command;
+        
+        repeat
+            command = NetworkReadSocket(handle, "\r\n");
+            
+            if StrBeginsWith(command, "quit", CASE_INSENSITIVE) then
+                done = true;
+                
+            else if StrBeginsWith(command, "echo", CASE_INSENSITIVE) then
+                Println(
+                    StrTrimLeading(StrTrimTrailing(StrRight(command, 4), STRWHITESPACECHARS), STRWHITESPACECHARS)
+                );
+        until done or (not StrEndsWith(command, "\r\n"));
+        
+        Println("Closing socket connection...");
+        NetworkCloseSocket(handle);
+    end;
+

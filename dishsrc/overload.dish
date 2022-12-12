@@ -1,0 +1,13 @@
+declare function F(&x)
+    begin
+        return F(x, 1);
+    end;
+    
+declare function F(&x, &e)
+    begin
+        return x ^ e;
+    end;
+    
+Println("   F(2) = " + F(2));
+Println("F(2, 3) = " + F(2, 3));
+

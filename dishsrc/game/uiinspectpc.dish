@@ -1,0 +1,906 @@
+import "item.dish";
+import "pc.dish";
+import "ui.dish";
+
+################################################################################
+
+declare integer as UI_INSPECT_PC_WIDTH = 55;
+lock UI_INSPECT_PC_WIDTH;
+
+declare integer as UI_INSPECT_PC_HEIGHT = 16;
+lock UI_INSPECT_PC_HEIGHT;
+
+declare integer as UI_INSPECT_PC_COLUMN_CENTER = 12;
+lock UI_INSPECT_PC_COLUMN_CENTER;
+
+declare integer as UI_INSPECT_PC_LEFT_OFFSET = 2;
+lock UI_INSPECT_PC_LEFT_OFFSET;
+
+declare integer as UI_INSPECT_PC_RIGHT_OFFSET = 25;
+lock UI_INSPECT_PC_RIGHT_OFFSET;
+
+################################################################################
+
+declare function UI_InspectCharacterBonus()
+    begin
+        declare boolean as done = false;
+            
+        while not done do
+            begin
+                declare integer as row = -1;
+                declare integer as col = (UI_MIN_TERMINAL_X - UI_INSPECT_PC_WIDTH - 4) / 2;
+                declare integer as i;
+                
+                #
+                #   Draw the window border
+                #
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                for i = 1 to UI_INSPECT_PC_HEIGHT
+                    begin
+                        TEXTIO_MoveTo(col, Inc(row));
+                        TEXTIO_AttrNormal();
+                        
+                        Print(" |" + StrReplicate(UI_INSPECT_PC_WIDTH, " ") + "| ");
+                    end;
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                row = 1;
+                
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(CenterJustify(UI_INSPECT_PC_WIDTH, PC.Name + "'s Bonuses"));
+                
+                Inc(row);
+                Inc(row);
+                
+                declare integer as tmp;
+                
+                tmp = PhyDamageBonusPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 10, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Phy Dmg Bonus") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                        Print(tmp);
+                    end;
+                    
+                Inc(row);
+                
+                tmp = ToHitBonusPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET - 20, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "To Hit Bonus") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                        Print(tmp);
+                    end;
+                
+                tmp = DefendBonusPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 5, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Def. Bonus") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                        Print(tmp);
+                    end;
+                    
+                Inc(row);
+                
+                tmp = HitPointBonusPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET - 20, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "HP Bonus") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                        Print(tmp);
+                    end;
+                
+                tmp = MagicPointBonusPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 5, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "MP Bonus") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                        Print(tmp);
+                    end;
+                    
+                Inc(row);
+                
+                tmp = PhyDamageAdjPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET - 20, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Phy Dmg Prot") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                        Print(tmp);
+                    end;
+                
+                tmp = FireDamageAdjPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 5, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Fire Dmg Prot") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                        Print(tmp);
+                    end;
+                    
+                Inc(row);
+                
+                tmp = ColdDamageAdjPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET - 20, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Cold Dmg Prot") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                        Print(tmp);
+                    end;
+                
+                tmp = ElectricDamageAdjPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 5, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Elec Dmg Prot") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                        Print(tmp);
+                    end;
+                    
+                Inc(row);
+                
+                tmp = MagicDamageAdjPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET - 20, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Magic Dmg Prot") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                        Print(tmp);
+                    end;
+                    
+                Inc(row);
+                
+                tmp = DetectTrapBonusPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET - 20, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Det Trap Bonus") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                        Print(tmp);
+                    end;
+                
+                tmp = DisarmTrapBonusPC(PC);
+                if 0 != tmp then
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 5, row);
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(15, "Dsrm Trap Bonus") + " : ");
+                        if tmp > 0 then
+                            begin
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                Print("+");
+                            end;
+                        else
+                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                        Print(tmp);
+                    end;
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, UI_INSPECT_PC_HEIGHT + 1);
+                Print(CenterJustify(UI_INSPECT_PC_WIDTH, "E(x)it"));
+                
+                TEXTIO_Refresh();
+                
+                if (Ord('x') == ToLowerCase(ReadCh())) then
+                    done = true;
+            end;
+    end;
+
+declare function UI_InspectCharacterInventory()
+    begin
+        declare boolean as done = false;
+            
+        while not done do
+            begin
+                declare integer as row = -1;
+                declare integer as col = (UI_MIN_TERMINAL_X - UI_INSPECT_PC_WIDTH - 4) / 2;
+                declare integer as i;
+                
+                #
+                #   Draw the window border
+                #
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                for i = 1 to UI_INSPECT_PC_HEIGHT
+                    begin
+                        TEXTIO_MoveTo(col, Inc(row));
+                        TEXTIO_AttrNormal();
+                        
+                        Print(" |" + StrReplicate(UI_INSPECT_PC_WIDTH, " ") + "| ");
+                    end;
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                row = 1;
+                
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(CenterJustify(UI_INSPECT_PC_WIDTH, PC.Name + "'s Inventory"));
+                
+                Inc(row);
+                Inc(row);
+                
+                #
+                #   Print weapon stats
+                #
+                begin
+                    declare reference weapon = WeaponList[PC.EqWeapon];
+                
+                    TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                    TEXTIO_AttrNormal();
+                    Print(RightJustify(10, "Weapon") + " : " + weapon.Name);
+                    
+                    if 0 != weapon.ToHitBonus then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 10, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "To Hit") + " : ");
+                            
+                            if weapon.ToHitBonus > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                
+                            Print(weapon.ToHitBonus);
+                        end;
+                    
+                    Inc(row);
+                    
+                    if (0 != weapon.MinPhyDamage) or (0 != weapon.MaxPhyDamage) then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Phy") + " : " + weapon.MinPhyDamage + "-" + weapon.MaxPhyDamage);
+                        end;
+                    
+                    if (0 != weapon.MinFireDamage) or (0 != weapon.MaxFireDamage) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) - 5, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Fire") + " : " + weapon.MinFireDamage + "-" + weapon.MaxFireDamage);
+                        end;
+                    
+                    if (0 != weapon.MinColdDamage) or (0 != weapon.MaxColdDamage) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) + 10, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Cold") + " : " + weapon.MinColdDamage + "-" + weapon.MaxColdDamage);
+                        end;
+                    
+                    Inc(row);
+                    
+                    if (0 != weapon.MinElectricDamage) or (0 != weapon.MaxElectricDamage) then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Elec.") + " : " + weapon.MinElectricDamage + "-" + weapon.MaxElectricDamage);
+                        end;
+                    
+                    if (0 != weapon.MinMagicDamage) or (0 != weapon.MaxMagicDamage) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) - 5, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Magic") + " : " + weapon.MinMagicDamage + "-" + weapon.MaxMagicDamage);
+                        end;
+                end;
+                
+                Inc(row);
+                Inc(row);
+                
+                #
+                #   Print armor stats
+                #
+                begin
+                    declare reference armor = ArmorList[PC.EqArmor];
+                
+                    TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                    TEXTIO_AttrNormal();
+                    Print(RightJustify(10, "Armor") + " : " + armor.Name);
+                    
+                    if 0 != armor.ToHitBonus then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 10, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "To Hit") + " : ");
+                            
+                            if armor.ToHitBonus > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                
+                            Print(armor.ToHitBonus);
+                        end;
+                    
+                    Inc(row);
+                    
+                    if (0 != armor.PhyDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Phy") + " : ");
+                            
+                            if armor.PhyDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(armor.PhyDamageAdj);
+                        end;
+                    
+                    if (0 != armor.FireDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) - 5, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Fire") + " : ");
+                            
+                            if armor.FireDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(armor.FireDamageAdj);
+                        end;
+                    
+                    if (0 != armor.ColdDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) + 10, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Cold") + " : ");
+                            
+                            if armor.ColdDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(armor.ColdDamageAdj);
+                        end;
+                    
+                    Inc(row);
+                    
+                    if (0 != armor.ElectricDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Elec.") + " : ");
+                            
+                            if armor.ElectricDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(armor.ElectricDamageAdj);
+                        end;
+                    
+                    if (0 != armor.MagicDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) - 5, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Magic") + " : ");
+                            
+                            if armor.MagicDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(armor.MagicDamageAdj);
+                        end;
+                end;
+                
+                Inc(row);
+                Inc(row);
+                
+                #
+                #   Print miscellaneous stats
+                #
+                begin
+                    declare reference misc = MiscItemList[PC.EqMisc];
+                
+                    TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                    TEXTIO_AttrNormal();
+                    Print(RightJustify(10, "Misc.") + " : " + misc.Name);
+                    
+                    if 0 != misc.ToHitBonus then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 10, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "To Hit") + " : ");
+                            
+                            if misc.ToHitBonus > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                
+                            Print(misc.ToHitBonus);
+                        end;
+                    
+                    Inc(row);
+                    
+                    if (0 != misc.PhyDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Phy") + " : ");
+                            
+                            if misc.PhyDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(misc.PhyDamageAdj);
+                        end;
+                    
+                    if (0 != misc.FireDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) - 5, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Fire") + " : ");
+                            
+                            if misc.FireDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(misc.FireDamageAdj);
+                        end;
+                    
+                    if 0 != misc.ToHitBonus then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) + 10, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Def.") + " : ");
+                            
+                            if misc.DefenseBonus > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                
+                            Print(misc.DefenseBonus);
+                        end;
+                    
+                    Inc(row);
+                    
+                    if (0 != misc.ColdDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 1, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Cold") + " : ");
+                            
+                            if misc.ColdDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(misc.ColdDamageAdj);
+                        end;
+                    
+                    if (0 != misc.ElectricDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) - 5, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Elec.") + " : ");
+                            
+                            if misc.ElectricDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(misc.ElectricDamageAdj);
+                        end;
+                    
+                    if (0 != misc.MagicDamageAdj) then
+                        begin
+                            TEXTIO_MoveTo(col + (UI_INSPECT_PC_WIDTH / 2) + 10, row);
+                            TEXTIO_AttrNormal();
+                            Print(RightJustify(6, "Magic") + " : ");
+                            
+                            if misc.MagicDamageAdj > 0 then
+                                begin
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                    Print("+");
+                                end;
+                            else
+                                TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                
+                            Print(misc.MagicDamageAdj);
+                        end;
+                end;
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, UI_INSPECT_PC_HEIGHT + 1);
+                Print(CenterJustify(UI_INSPECT_PC_WIDTH, "E(x)it"));
+                
+                TEXTIO_Refresh();
+                
+                if (Ord('x') == ToLowerCase(ReadCh())) then
+                    done = true;
+            end;
+    end;
+    
+declare function UI_InspectCharacterSpellBook()
+    begin
+        declare boolean as done = false;
+            
+        while not done do
+            begin
+                declare integer as row = -1;
+                declare integer as col = (UI_MIN_TERMINAL_X - UI_INSPECT_PC_WIDTH - 4) / 2;
+                declare integer as i;
+                
+                #
+                #   Draw the window border
+                #
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                for i = 1 to UI_INSPECT_PC_HEIGHT
+                    begin
+                        TEXTIO_MoveTo(col, Inc(row));
+                        TEXTIO_AttrNormal();
+                        
+                        Print(" |" + StrReplicate(UI_INSPECT_PC_WIDTH, " ") + "| ");
+                    end;
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                #
+                #   Fill the window
+                #
+                
+                row = 2;
+                
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, row);
+                TEXTIO_AttrNormal();
+                Print(CenterJustify(UI_INSPECT_PC_WIDTH, PC.Name + "'s Spell Book"));
+                
+                Inc(row);
+                
+                i = 0;
+                while i <= 12 do
+                    begin
+                        if PC.SpellBook[i] then
+                            begin
+                                TEXTIO_AttrNormal();
+                                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + 2, row);
+                                
+                                if PC.Level < SpellList[i].Level then
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                
+                                Print(SpellList[i].Name + " (L" + SpellList[i].Level + ":" + SpellList[i].MPCost + ")");
+                            end;
+                            
+                        Inc(row);
+                        Inc(i);
+                    end;
+                       
+                row = 3; 
+                while i <= SpellList.finish do
+                    begin
+                        if PC.SpellBook[i] then
+                            begin
+                                TEXTIO_AttrNormal();
+                                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET + (UI_INSPECT_PC_WIDTH / 2) + 2, row);
+                                
+                                if PC.Level < SpellList[i].Level then
+                                    TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                
+                                Print(SpellList[i].Name + " (L" + SpellList[i].Level + ":" + SpellList[i].MPCost + ")");
+                            end;
+                           
+                        Inc(row);
+                        Inc(i);
+                    end;
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, UI_INSPECT_PC_HEIGHT + 1);
+                Print(CenterJustify(UI_INSPECT_PC_WIDTH, "E(x)it"));
+                
+                if Ord('x') == ToLowerCase(ReadCh()) then
+                    done = true;
+            end;
+        
+    end;
+
+declare function UI_InspectCharacter()
+    begin
+        declare boolean as done = false;
+            
+        while not done do
+            begin
+                declare integer as row = -1;
+                declare integer as col = (UI_MIN_TERMINAL_X - UI_INSPECT_PC_WIDTH - 4) / 2;
+                declare integer as i;
+                
+                #
+                #   Draw the window border
+                #
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                for i = 1 to UI_INSPECT_PC_HEIGHT
+                    begin
+                        TEXTIO_MoveTo(col, Inc(row));
+                        TEXTIO_AttrNormal();
+                        
+                        Print(" |" + StrReplicate(UI_INSPECT_PC_WIDTH, " ") + "| ");
+                    end;
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(" +" + StrReplicate(UI_INSPECT_PC_WIDTH, "-") + "+ ");
+                
+                TEXTIO_MoveTo(col, Inc(row));
+                TEXTIO_AttrNormal();
+                Print(StrReplicate(UI_INSPECT_PC_WIDTH + 4, " "));
+                
+                #
+                #   Fill the window
+                #
+                
+                row = 2;
+                col = (UI_MIN_TERMINAL_X - UI_INSPECT_PC_WIDTH) / 2;
+                
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, row);
+                TEXTIO_AttrNormal();
+                Print(RightJustify(UI_INSPECT_PC_COLUMN_CENTER, "Name") + " : " + PC.Name);
+                Print("   Lvl : " + PC.Level + " (");
+                UI_PrintRatio(PC.XP - XpForLevel(PC.Level), XpForLevel(PC.Level + 1) - XpForLevel(PC.Level));
+                TEXTIO_AttrNormal();
+                Print(" XP)");
+                
+                Inc(row);
+                
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, row);
+                TEXTIO_AttrNormal();
+                Print(RightJustify(UI_INSPECT_PC_COLUMN_CENTER, "HP") + " : ");
+                UI_PrintRatio(PC.HP, PC.MaxHP);
+                
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 2, row);
+                TEXTIO_AttrNormal();
+                Print(RightJustify(UI_INSPECT_PC_COLUMN_CENTER, "MP") + " : ");
+                UI_PrintRatio(PC.MP, PC.MaxMP);
+                
+                Inc(row);
+                Inc(row);
+                
+                TEXTIO_MoveTo(col + 3, row);
+                TEXTIO_AttrNormal();
+                Print(
+                    RightJustify(6, "Gold") + " : " + LeftJustify(7, AsString(PC.Gold)) + "  " +
+                    RightJustify(6, "Flares") + " : " + LeftJustify(4, AsString(PC.Flares)) + "  " +
+                    RightJustify(6, "Food") + " : " + LeftJustify(4, AsString(PC.Food))
+                );
+                
+                Inc(row);
+                
+                for i = PC.PhyAttr.start to PC.PhyAttr.finish
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_LEFT_OFFSET, Inc(row));
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(UI_INSPECT_PC_COLUMN_CENTER, PC.PhyAttr[i].Name) + " : " + PC.PhyAttr[i].Value);
+                    end;
+                    
+                row = 6;
+                
+                for i = PC.SaveAttr.start to PC.SaveAttr.finish
+                    begin
+                        TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 5, Inc(row));
+                        TEXTIO_AttrNormal();
+                        Print(RightJustify(UI_INSPECT_PC_COLUMN_CENTER + 5, PC.SaveAttr[i].Name) + " : " + PC.SaveAttr[i].Value);
+                    end;
+                    
+                Inc(row);
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 3, Inc(row));
+                Print("Weapon : " + WeaponList[PC.EqWeapon].Name);
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 3, Inc(row));
+                Print(" Armor : " + ArmorList[PC.EqArmor].Name);
+                TEXTIO_MoveTo(col + UI_INSPECT_PC_RIGHT_OFFSET + 3, Inc(row));
+                Print("  Misc : " + MiscItemList[PC.EqMisc].Name);
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_MoveTo(col, UI_INSPECT_PC_HEIGHT + 1);
+                Print(CenterJustify(UI_INSPECT_PC_WIDTH, "(B)onuses  (I)nventory  (S)pells  E(x)it"));
+                
+                TEXTIO_Refresh();
+                
+                switch ToLowerCase(ReadCh())
+                    Ord('b'):
+                        UI_InspectCharacterBonus();
+                        
+                    Ord('i'):
+                        UI_InspectCharacterInventory();
+                        
+                    Ord('s'):
+                        UI_InspectCharacterSpellBook();
+                
+                    Ord('x'):
+                        done = true;
+                        
+                    otherwise:
+                        ;
+                        
+                end;
+            end;
+    end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

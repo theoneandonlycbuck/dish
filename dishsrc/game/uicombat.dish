@@ -1,0 +1,174 @@
+import "map.dish";
+import "monsters.dish";
+import "random.dish";
+import "ui.dish";
+
+################################################################################
+
+declare boolean as InCombat = false;
+
+################################################################################
+
+declare function UI_Combat(&cell)
+    begin
+        Assert(cell.Parameter >= EncounterSet.start);
+        Assert(cell.Parameter <= EncounterSet.finish);
+    
+        #
+        #   Setup combat
+        #
+        
+        declare reference monster = EncounterSet[cell.Parameter];
+        
+        declare boolean as skip_monster_turn = false;
+    
+        #
+        #   Begin the turn
+        #
+        
+        InCombat = true;
+        
+        UI_ClearInformationArea();
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 19);
+        
+        UI_SetRatioColor(AsReal(PC.HP) / PC.MaxHP);
+        Print(PC.Name);
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        Print(" is facing a ");
+        
+        UI_SetRatioColor(AsReal(monster.HP) / monster.MaxHP);
+        Print(monster.Name);
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        Print(". (" + cell.Parameter + "/" + EncounterSet.finish + ")");
+        
+        #
+        #   Handle PC's turn.
+        #
+        
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        TEXTIO_MoveTo(3, 20);
+        Print("(F)ight, (C)ast a spell, or (R)un?");
+        
+        declare integer as ch;
+        repeat
+            ch = ToUpperCase(ReadCh());
+        until (Ord("F") == ch) or (Ord("C") == ch) or (Ord("R") == ch);
+        
+        switch ch
+            Ord("F"):
+                begin
+                    #
+                    #   !!!
+                    #
+                end;
+                
+            Ord("C"):
+                UI_CastASpell();
+                
+            Ord("R"):
+                if TestChance(50 + FleeBonusPC(PC)) then
+                    begin
+                        declare reference directions = {};
+                        if Location.Y > 1 then
+                            Append(directions, DIR_NORTH);
+                        if Location.Y < MAP_Y_SIZE then
+                            Append(directions, DIR_SOUTH);
+                        if Location.X > 1 then
+                            Append(directions, DIR_WEST);
+                        if Location.X < MAP_X_SIZE then
+                            Append(directions, DIR_EAST);
+                        
+                        declare integer as dir = directions[RandomInteger(directions.start, directions.finish)];
+            
+                        TEXTIO_AttrNormal();
+                        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                        TEXTIO_MoveTo(3, 22);
+                        Print(PC.Name + " runs " + Directions[dir] + "!");
+                        
+                        switch dir
+                            DIR_NORTH:
+                                Dec(Location.Y);
+                            
+                            DIR_EAST:
+                                Inc(Location.X);
+                            
+                            DIR_SOUTH:
+                                Inc(Location.Y);
+                            
+                            DIR_WEST:
+                                Dec(Location.X);
+                            
+                            otherwise:
+                                Assert(false);
+                                
+                        end;
+                        
+                        TEXTIO_AttrNormal();
+                        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                        TEXTIO_MoveTo(3, 24);
+                        Print("Press any key to continue...");
+                        ReadCh();
+                        
+                        return false;
+                    end;
+                else
+                    begin
+                        TEXTIO_AttrNormal();
+                        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                        TEXTIO_MoveTo(3, 22);
+                        Print(PC.Name + " attempts to flee and fails!");
+                        
+                        TEXTIO_MoveTo(3, 24);
+                        Print("Press any key to continue...");
+                    end;
+                
+            otherwise:
+                Assert(false);
+                
+        end;
+        
+        #
+        #   Handle the monster's turn.
+        #
+        
+        if (not skip_monster_turn) and (monster.HP > 0) then
+            begin
+                #
+                #   !!!
+                #
+            end;
+            
+        #
+        #   End combat
+        #
+        
+        if monster.HP <= 0 then
+            begin
+                cell.Contents = MAP_Chest;
+                cell.Parameter = D6();
+            end;
+        
+        InCombat = false;
+        
+        return true;
+    end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

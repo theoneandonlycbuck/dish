@@ -1,0 +1,46 @@
+
+####
+
+declare function ArrayAsString(&A)
+    begin
+        declare integer as i;
+        declare string as str;
+        
+        str = "{  ";
+        for i = A.start to A.finish
+            str = str + (AsString(A[i]) + "  ");
+        str = str + "}";
+        
+        return str;
+    end;
+    
+declare integer as i;
+
+####
+
+declare array[0 to 10] of real as A;
+
+for i = A.start to A.finish
+    A[i] = 2 * i * PI / (A.length - 1);
+
+for i = A.start to A.finish step 2
+    A[i] = -A[i];
+
+####
+
+Newln();
+Println("      A: " + ArrayAsString(A));
+Newln();
+Println("Abs(-1): " + Abs(-1));
+Println(" Abs(A): " + ArrayAsString(Abs(A)));
+Newln();
+Println("Sin(PI): " + Sin(PI));
+Println(" Sin(A): " + ArrayAsString(Sin(A)));
+Newln();
+Println("Cos(PI): " + Cos(PI));
+Println(" Cos(A): " + ArrayAsString(Cos(A)));
+Newln();
+Println("Tan(PI): " + Tan(PI));
+Println(" Tan(A): " + ArrayAsString(Tan(A)));
+Newln();
+

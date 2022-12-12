@@ -1,0 +1,4 @@
+True
+1
+3.14159
+This is a string.

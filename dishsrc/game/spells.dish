@@ -1,0 +1,240 @@
+
+################################################################################
+
+declare type structure
+    declare string as Name;
+    declare boolean as CombatOnly;
+    declare integer as MPCost;
+    declare integer as Level;
+end as SpellT;
+
+declare integer as NumSpells = 0;
+
+declare integer as SPELL_Flare = NumSpells; lock SPELL_Flare; Inc(NumSpells);
+
+declare integer as SPELL_HealingFinger = NumSpells; lock SPELL_HealingFinger; Inc(NumSpells);
+declare integer as SPELL_PhysicalProtection = NumSpells; lock SPELL_PhysicalProtection; Inc(NumSpells);
+declare integer as SPELL_FireProtection = NumSpells; lock SPELL_FireProtection; Inc(NumSpells);
+declare integer as SPELL_ColdProtection = NumSpells; lock SPELL_ColdProtection; Inc(NumSpells);
+declare integer as SPELL_PoisonProtection = NumSpells; lock SPELL_PoisonProtection; Inc(NumSpells);
+declare integer as SPELL_ElectricProtection = NumSpells; lock SPELL_ElectricProtection; Inc(NumSpells);
+declare integer as SPELL_MagicProtection = NumSpells; lock SPELL_MagicProtection; Inc(NumSpells);
+
+declare integer as SPELL_FireBall = NumSpells; lock SPELL_FireBall; Inc(NumSpells);
+declare integer as SPELL_SnowBall = NumSpells; lock SPELL_SnowBall; Inc(NumSpells);
+declare integer as SPELL_PoisonTouch = NumSpells; lock SPELL_PoisonTouch; Inc(NumSpells);
+declare integer as SPELL_ElectricCharge = NumSpells; lock SPELL_ElectricCharge; Inc(NumSpells);
+declare integer as SPELL_MagicStrike = NumSpells; lock SPELL_MagicStrike; Inc(NumSpells);
+
+declare integer as SPELL_Reveal = NumSpells; lock SPELL_Reveal; Inc(NumSpells);
+declare integer as SPELL_Teleport = NumSpells; lock SPELL_Teleport; Inc(NumSpells);
+declare integer as SPELL_HealingTouch = NumSpells; lock SPELL_HealingTouch; Inc(NumSpells);
+declare integer as SPELL_BattleHymn = NumSpells; lock SPELL_BattleHymn; Inc(NumSpells);
+
+declare integer as SPELL_FireStorm = NumSpells; lock SPELL_FireStorm; Inc(NumSpells);
+declare integer as SPELL_SnowStorm = NumSpells; lock SPELL_SnowStorm; Inc(NumSpells);
+declare integer as SPELL_PoisonCloud = NumSpells; lock SPELL_PoisonCloud; Inc(NumSpells);
+declare integer as SPELL_ElectricBolt = NumSpells; lock SPELL_ElectricBolt; Inc(NumSpells);
+declare integer as SPELL_MagicBolt = NumSpells; lock SPELL_MagicBolt; Inc(NumSpells);
+
+declare integer as SPELL_HolyStrike = NumSpells; lock SPELL_HolyStrike; Inc(NumSpells);
+declare integer as SPELL_UnholyStrike = NumSpells; lock SPELL_UnholyStrike; Inc(NumSpells);
+declare integer as SPELL_Protection = NumSpells; lock SPELL_Protection; Inc(NumSpells);
+
+Dec(NumSpells);
+lock NumSpells;
+
+################################################################################
+
+declare array[0 to NumSpells] of SpellT as SpellList;
+
+###
+
+SpellList[SPELL_Flare].Name = "Flare";                                          #  Same as using a flare
+SpellList[SPELL_Flare].CombatOnly = false;
+SpellList[SPELL_Flare].MPCost = 3;
+SpellList[SPELL_Flare].Level = 0;
+
+###
+
+SpellList[SPELL_HealingFinger].Name = "Healing Finger";                         #  Minor healing
+SpellList[SPELL_HealingFinger].CombatOnly = false;
+SpellList[SPELL_HealingFinger].MPCost = 5;
+SpellList[SPELL_HealingFinger].Level = 1;
+
+SpellList[SPELL_PhysicalProtection].Name = "Phys. Prot.";                       #  Reduce physical damage
+SpellList[SPELL_PhysicalProtection].CombatOnly = true;
+SpellList[SPELL_PhysicalProtection].MPCost = 7;
+SpellList[SPELL_PhysicalProtection].Level = 1;
+
+SpellList[SPELL_FireProtection].Name = "Prot. Fire";                            #  Reduce fire damage
+SpellList[SPELL_FireProtection].CombatOnly = true;
+SpellList[SPELL_FireProtection].MPCost = 7;
+SpellList[SPELL_FireProtection].Level = 1;
+
+SpellList[SPELL_ColdProtection].Name = "Prot. Cold";                            #  Reduce cold damage
+SpellList[SPELL_ColdProtection].CombatOnly = true;
+SpellList[SPELL_ColdProtection].MPCost = 7;
+SpellList[SPELL_ColdProtection].Level = 1;
+
+SpellList[SPELL_PoisonProtection].Name = "Prot. Poison";                        #  Reduce poison damage
+SpellList[SPELL_PoisonProtection].CombatOnly = true;
+SpellList[SPELL_PoisonProtection].MPCost = 7;
+SpellList[SPELL_PoisonProtection].Level = 1;
+
+SpellList[SPELL_ElectricProtection].Name = "Prot. Elec.";                       #  Reduce lectric damage
+SpellList[SPELL_ElectricProtection].CombatOnly = true;
+SpellList[SPELL_ElectricProtection].MPCost = 7;
+SpellList[SPELL_ElectricProtection].Level = 1;
+
+SpellList[SPELL_MagicProtection].Name = "Prot. from Magic";                     #  Reduce magic damage
+SpellList[SPELL_MagicProtection].CombatOnly = true;
+SpellList[SPELL_MagicProtection].MPCost = 7;
+SpellList[SPELL_MagicProtection].Level = 1;
+
+###
+
+SpellList[SPELL_FireBall].Name = "Fire Ball";                                   #  Fire-based attack spell
+SpellList[SPELL_FireBall].CombatOnly = true;
+SpellList[SPELL_FireBall].MPCost = 5;
+SpellList[SPELL_FireBall].Level = 2;
+
+SpellList[SPELL_SnowBall].Name = "Snow Ball";                                   #  Cold-based attack spell
+SpellList[SPELL_SnowBall].CombatOnly = true;
+SpellList[SPELL_SnowBall].MPCost = 5;
+SpellList[SPELL_SnowBall].Level = 2;
+
+SpellList[SPELL_PoisonTouch].Name = "Poison Touch";                             #  Poison-based attack spell
+SpellList[SPELL_PoisonTouch].CombatOnly = true;
+SpellList[SPELL_PoisonTouch].MPCost = 5;
+SpellList[SPELL_PoisonTouch].Level = 2;
+
+SpellList[SPELL_ElectricCharge].Name = "Elec. Charge";                          #  Electric-based attack spell
+SpellList[SPELL_ElectricCharge].CombatOnly = true;
+SpellList[SPELL_ElectricCharge].MPCost = 5;
+SpellList[SPELL_ElectricCharge].Level = 2;
+
+SpellList[SPELL_MagicStrike].Name = "Magic Strike";                             #  Magic-based attack spell
+SpellList[SPELL_MagicStrike].CombatOnly = true;
+SpellList[SPELL_MagicStrike].MPCost = 5;
+SpellList[SPELL_MagicStrike].Level = 2;
+
+###
+
+SpellList[SPELL_Reveal].Name = "Reveal";                                        #  Reveal the entire level map
+SpellList[SPELL_Reveal].CombatOnly = false;
+SpellList[SPELL_Reveal].MPCost = 15;
+SpellList[SPELL_Reveal].Level = 3;
+
+SpellList[SPELL_Teleport].Name = "Teleport";                                    #  Teleport to a revealed square on the same level
+SpellList[SPELL_Teleport].CombatOnly = false;
+SpellList[SPELL_Teleport].MPCost = 10;
+SpellList[SPELL_Teleport].Level = 3;
+
+SpellList[SPELL_HealingTouch].Name = "Healing Touch";                           #  Greater healing spell
+SpellList[SPELL_HealingTouch].CombatOnly = false;
+SpellList[SPELL_HealingTouch].MPCost = 10;
+SpellList[SPELL_HealingTouch].Level = 3;
+
+SpellList[SPELL_BattleHymn].Name = "Battle Hymn";                               #  Increase to-hit and defense
+SpellList[SPELL_BattleHymn].CombatOnly = true;
+SpellList[SPELL_BattleHymn].MPCost = 15;
+SpellList[SPELL_BattleHymn].Level = 3;
+
+###
+
+SpellList[SPELL_FireStorm].Name = "Fire Storm";                                 #  Fire-based attack spell
+SpellList[SPELL_FireStorm].CombatOnly = true;
+SpellList[SPELL_FireStorm].MPCost = 15;
+SpellList[SPELL_FireStorm].Level = 4;
+
+SpellList[SPELL_SnowStorm].Name = "Snow Storm";                                 #  Cold-based attack spell
+SpellList[SPELL_SnowStorm].CombatOnly = true;
+SpellList[SPELL_SnowStorm].MPCost = 15;
+SpellList[SPELL_SnowStorm].Level = 4;
+
+SpellList[SPELL_PoisonCloud].Name = "Poison Cloud";                             #  Poison-based attack spell
+SpellList[SPELL_PoisonCloud].CombatOnly = true;
+SpellList[SPELL_PoisonCloud].MPCost = 15;
+SpellList[SPELL_PoisonCloud].Level = 4;
+
+SpellList[SPELL_ElectricBolt].Name = "Elec. Bolt";                              #  Electric-based attack spell
+SpellList[SPELL_ElectricBolt].CombatOnly = true;
+SpellList[SPELL_ElectricBolt].MPCost = 15;
+SpellList[SPELL_ElectricBolt].Level = 4;
+
+SpellList[SPELL_MagicBolt].Name = "Magic Bolt";                                 #  Reduce magic damage
+SpellList[SPELL_MagicBolt].CombatOnly = true;
+SpellList[SPELL_MagicBolt].MPCost = 15;
+SpellList[SPELL_MagicBolt].Level = 4;
+
+###
+
+SpellList[SPELL_HolyStrike].Name = "Holy Strike";                               #  All types of damage except fire
+SpellList[SPELL_FireProtection].CombatOnly = true;
+SpellList[SPELL_HolyStrike].MPCost = 25;
+SpellList[SPELL_HolyStrike].Level = 5;
+
+SpellList[SPELL_UnholyStrike].Name = "Unholy Strike";                           #  All types of damage except cold
+SpellList[SPELL_UnholyStrike].CombatOnly = true;
+SpellList[SPELL_UnholyStrike].MPCost = 25;
+SpellList[SPELL_UnholyStrike].Level = 5;
+
+SpellList[SPELL_Protection].Name = "Protection";                                #  Protection from all types of damage
+SpellList[SPELL_Protection].CombatOnly = true;
+SpellList[SPELL_Protection].MPCost = 20;
+SpellList[SPELL_Protection].Level = 5;
+
+###
+
+lock SpellList;
+
+declare function MaximumSpellLevel(&caster)
+    begin
+        declare integer as lvl = 0;
+        declare integer as i;
+        
+        for i = caster.SpellBook.start to caster.SpellBook.finish
+            if caster.SpellBook[i] and (SpellList[i].Level > lvl) then
+                lvl = SpellList[i].Level;
+                
+        if caster.Level < lvl then
+            lvl = caster.Level;
+                
+        return lvl;
+    end;
+
+################################################################################
+
+declare integer as MaximumSpellLevel = 5;
+lock MaximumSpellLevel;
+
+declare array [SpellList.start to SpellList.finish] of integer as SpellChanceTable;
+
+begin
+    declare integer as base = 0;
+    declare integer as i;
+    
+    for i = SpellList.start to SpellList.finish
+        begin
+            declare integer as tmp = MaximumSpellLevel - SpellList[i].Level + 1;
+            SpellChanceTable[i] = base + tmp;
+            Inc(base, tmp);
+        end;
+end;
+
+lock SpellChanceTable;
+
+declare type array[SpellList.start to SpellList.finish] of boolean as SpellBookT;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

@@ -1,0 +1,647 @@
+import "monsters.dish";
+import "random.dish";
+
+################################################################################
+
+declare integer as MAP_X_SIZE = 20;
+lock MAP_X_SIZE;
+
+declare integer as MAP_Y_SIZE = 15;
+lock MAP_Y_SIZE;
+
+declare integer as MAP_LEVEL_SIZE = 100;
+lock MAP_LEVEL_SIZE;
+
+################################################################################
+
+declare integer as DIR_NORTH = 0;
+lock DIR_NORTH;
+
+declare integer as DIR_EAST = 1;
+lock DIR_EAST;
+
+declare integer as DIR_SOUTH = 2;
+lock DIR_SOUTH;
+
+declare integer as DIR_WEST = 3;
+lock DIR_WEST;
+
+declare array[DIR_NORTH to DIR_WEST] of string as Directions;
+Directions[DIR_NORTH] = "North";
+Directions[DIR_EAST] = "East";
+Directions[DIR_SOUTH] = "South";
+Directions[DIR_WEST] = "West";
+lock Directions;
+
+################################################################################
+
+declare integer as NumMapContents = 0;
+
+declare integer as MAP_Empty = NumMapContents; lock MAP_Empty; Inc(NumMapContents);
+declare integer as MAP_Encounter = NumMapContents; lock MAP_Encounter; Inc(NumMapContents);
+declare integer as MAP_Chest = NumMapContents; lock MAP_Chest; Inc(NumMapContents);
+declare integer as MAP_Book = NumMapContents; lock MAP_Book; Inc(NumMapContents);
+declare integer as MAP_Pool = NumMapContents; lock MAP_Pool; Inc(NumMapContents);
+declare integer as MAP_Vendor = NumMapContents; lock MAP_Vendor; Inc(NumMapContents);
+declare integer as MAP_StairsUp = NumMapContents; lock MAP_StairsUp; Inc(NumMapContents);
+declare integer as MAP_StairsDown = NumMapContents; lock MAP_StairsDown; Inc(NumMapContents);
+declare integer as MAP_Exit = NumMapContents; lock MAP_Exit; Inc(NumMapContents);
+
+lock NumMapContents;
+
+################################################################################
+
+declare type structure
+    declare boolean as Visited;
+    declare integer as Contents;
+    declare integer as Parameter;
+end as MapCellT;
+
+declare type array[1 to MAP_X_SIZE] of MapCellT as MapRowT;
+declare type array[1 to MAP_Y_SIZE] of MapRowT as MapLevelT;
+declare type array[1 to MAP_LEVEL_SIZE] of MapLevelT as MapT;
+
+declare type structure
+    declare integer as Level;
+    declare integer as X;
+    declare integer as Y;
+end as LocationT;
+
+################################################################################
+
+declare LocationT as Location;
+declare MapT as Map;
+
+################################################################################
+
+declare type structure
+    declare integer as TotalCells;
+    declare integer as VisitedCells;
+    
+    declare integer as TotalMonsters;
+    declare integer as SlainMonsters;
+    
+    declare integer as TotalChests;
+    declare integer as OpenedChests;
+    
+    declare integer as TotalBooks;
+    declare integer as ReadBooks;
+    
+    declare integer as TotalPools;
+    declare integer as BathedPools;
+    
+    declare integer as TotalVendors;
+end as MapStatisticsT;
+
+declare MapStatisticsT as MapStatistics;
+MapStatistics.TotalCells = 0;
+MapStatistics.VisitedCells = 0;
+MapStatistics.TotalMonsters = 0;
+MapStatistics.SlainMonsters = 0;
+MapStatistics.TotalChests = 0;
+MapStatistics.OpenedChests = 0;
+MapStatistics.TotalBooks = 0;
+MapStatistics.ReadBooks = 0;
+MapStatistics.TotalPools = 0;
+MapStatistics.BathedPools = 0;
+MapStatistics.TotalVendors = 0;
+
+declare function MAP_PrintMapStatistics()
+    begin
+    
+        declare function printStats(&width, &caption, &numer, &denom)
+            begin
+                Println(
+                    RightJustify(width, caption) +
+                    numer + " / " + denom +
+                    " (" + Round(1000.0 * numer / denom) / 10.0 + "%)"
+                );
+            end;
+    
+        Println();
+        Println("+" + StrReplicate(38, "-") + "+");
+        Println(CenterJustify(40, "Game Statistics"));
+        Println("+" + StrReplicate(38, "-") + "+");
+        Println();
+        printStats(20, "Map Visited : ", MapStatistics.VisitedCells, MapStatistics.TotalCells);
+        Println();
+        printStats(20, "Monsters Slain : ", MapStatistics.SlainMonsters, MapStatistics.TotalMonsters);
+        Println();
+        printStats(20, "Chests Opened : ", MapStatistics.OpenedChests, MapStatistics.TotalChests);
+        Println();
+        printStats(20, "Books Read : ", MapStatistics.ReadBooks, MapStatistics.TotalBooks);
+        printStats(20, "Pools Bathed : ", MapStatistics.BathedPools, MapStatistics.TotalPools);
+        Println();
+        Println(RightJustify(20, "Total Vendors : ") + MapStatistics.TotalVendors);
+        Println();
+    end;
+
+################################################################################
+
+declare function MAP_CreateVendorCell(&cell, &level)
+    begin
+        cell.Contents = MAP_Vendor;
+        cell.Parameter = level;
+        
+        `Inc(MapStatistics.TotalVendors);
+    end;
+
+declare function MAP_CreatePoolCell(&cell, level)
+    begin
+        cell.Contents = MAP_Pool;
+        cell.Parameter = level;
+        
+        `Inc(MapStatistics.TotalPools);
+    end;
+
+declare function MAP_CreateBookCell(&cell, &level)
+    begin
+        cell.Contents = MAP_Book;
+        cell.Parameter = level;
+        
+        `Inc(MapStatistics.TotalBooks);
+    end;
+
+declare function MAP_CreateChestCell(&cell, &level)
+    begin
+        cell.Contents = MAP_Chest;
+        cell.Parameter = D6();      # trap
+        
+        `Inc(MapStatistics.TotalChests);
+    end;
+
+declare function MAP_CreateMonsterCell(&cell, &level)
+    begin
+        declare MonsterT as monster;
+        MONSTER_Clear(monster);
+        
+        declare real as lvl_ratio = AsReal(MAP_LEVEL_SIZE - level + 1) / MAP_LEVEL_SIZE;
+        
+        if lvl_ratio <= 0.1 then
+            switch D4()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                3:
+                    MONSTER_CreateDog(monster);
+                
+                4:
+                    MONSTER_CreateMaintenanceMan(monster);
+                    
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.2 then
+            switch D6()
+                1, 2, 3, 4:
+                    switch D4()
+                        1:
+                            MONSTER_CreateOrc(monster);
+                        
+                        2:
+                            MONSTER_CreateSkeleton(monster);
+                        
+                        3:
+                            MONSTER_CreateDog(monster);
+                        
+                        4:
+                            MONSTER_CreateMaintenanceMan(monster);
+                        
+                        otherwise:
+                            Assert(false);
+                            
+                    end;
+                    
+                5, 6:
+                    switch D4()
+                        1:
+                            MONSTER_CreateZombie(monster);
+                        
+                        2:
+                            MONSTER_CreateGuard(monster);
+                        
+                        3:
+                            MONSTER_CreateAttackDog(monster);
+                        
+                        4:
+                            MONSTER_CreateOrcCaptain(monster);
+                        
+                        otherwise:
+                            Assert(false);
+                            
+                    end;
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.3 then
+            switch D6()
+                1, 2:
+                    switch D4()
+                        1:
+                            MONSTER_CreateOrc(monster);
+                        
+                        2:
+                            MONSTER_CreateSkeleton(monster);
+                        
+                        3:
+                            MONSTER_CreateDog(monster);
+                        
+                        4:
+                            MONSTER_CreateMaintenanceMan(monster);
+                        
+                        otherwise:
+                            Assert(false);
+                            
+                    end;
+                    
+                3, 4, 5:
+                    switch D4()
+                        1:
+                            MONSTER_CreateZombie(monster);
+                        
+                        2:
+                            MONSTER_CreateGuard(monster);
+                        
+                        3:
+                            MONSTER_CreateAttackDog(monster);
+                        
+                        4:
+                            MONSTER_CreateOrcCaptain(monster);
+                        
+                        otherwise:
+                            Assert(false);
+                            
+                    end;
+                    
+                6:
+                    switch D4()
+                        1:
+                            MONSTER_CreateMummy(monster);
+                        
+                        2:
+                            MONSTER_CreateMercenary(monster);
+                        
+                        3:
+                            MONSTER_CreateWolf(monster);
+                        
+                        4:
+                            MONSTER_CreateTroll(monster);
+                        
+                        otherwise:
+                            Assert(false);
+                            
+                    end;
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.4 then
+            switch D2()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.5 then
+            switch D2()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.6 then
+            switch D2()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.7 then
+            switch D2()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.8 then
+            switch D2()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else if lvl_ratio <= 0.9 then
+            switch D2()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+            
+        else
+            switch D2()
+                1:
+                    MONSTER_CreateOrc(monster);
+                
+                2:
+                    MONSTER_CreateSkeleton(monster);
+                
+                otherwise:
+                    Assert(false);
+                    
+            end;
+    
+        cell.Contents = MAP_Encounter;
+        cell.Parameter = Append(EncounterSet, monster);
+        
+        `Inc(MapStatistics.TotalMonsters);
+    end;
+
+declare function MAP_CreateEmptyCell(&cell, &level)
+    begin
+        cell.Contents = MAP_Empty;
+        cell.Parameter = D6();      # message
+    end;
+
+declare function MAP_CreateMap(&map, &loc)
+    begin
+        MapStatistics.TotalCells = MAP_LEVEL_SIZE * MAP_X_SIZE * MAP_Y_SIZE;
+    
+        declare integer as lvl;
+        declare integer as x;
+        declare integer as y;
+        
+        for lvl = map.start to map.finish
+            for y = map[lvl].start to map[lvl].finish
+                for x = map[lvl][y].start to map[lvl][y].finish
+                    begin
+                        declare reference cell = map[lvl][y][x];
+                    
+                        cell.Visited = false;
+                        
+                        declare integer as roll = D100();
+
+                        if roll < 2 then
+                            MAP_CreateVendorCell(cell, lvl);
+                        
+                        else if roll < 5 then
+                            MAP_CreatePoolCell(cell, lvl);
+                        
+                        else if roll < 10 then
+                            MAP_CreateBookCell(cell, lvl);
+                            
+                        else if roll < 20 then
+                            MAP_CreateChestCell(cell, lvl);
+                            
+                        else if roll < 40 then
+                            MAP_CreateMonsterCell(cell, lvl);
+                            
+                        else
+                            MAP_CreateEmptyCell(cell, lvl);
+                    end;
+                    
+        #
+        #   Place the stairs going down from the top level.
+        #
+
+        lvl = map.finish;
+        y = RandomInteger(map[lvl].start, map[lvl].finish);
+        x = RandomInteger(map[lvl][y].start, map[lvl][y].finish);
+
+        map[lvl][y][x].Contents = MAP_StairsDown;
+        map[lvl][y][x].Parameter = D4();
+        
+        #
+        #   Place the stairs going up and going down on the intermediate levels.
+        #
+
+        while Dec(lvl) > map.start do
+            begin
+                map[lvl][y][x].Contents = MAP_StairsUp;
+                map[lvl][y][x].Parameter = map[lvl + 1][y][x].Parameter;
+                
+                repeat
+                    y = RandomInteger(map[lvl].start, map[lvl].finish);
+                    x = RandomInteger(map[lvl][y].start, map[lvl][y].finish);
+                until (MAP_StairsUp != map[lvl][y][x].Contents);
+                
+                map[lvl][y][x].Contents = MAP_StairsDown;
+                map[lvl][y][x].Parameter = D4(1);
+            end;
+  
+        map[lvl][y][x].Contents = MAP_StairsUp;
+        map[lvl][y][x].Parameter = map[lvl + 1][y][x].Parameter;
+            
+        #
+        #   Place the exit on the bottom level.
+        #
+      
+        repeat
+            y = RandomInteger(map[lvl].start, map[lvl].finish);
+            x = RandomInteger(map[lvl][y].start, map[lvl][y].finish);
+        until (MAP_StairsUp != map[lvl][y][x].Contents);
+        
+        map[lvl][y][x].Contents = MAP_Exit;
+        
+        #
+        #   Establish the starting location.
+        #
+
+        loc.Level = map.finish;
+        
+        repeat
+            loc.Y = RandomInteger(map[loc.Level].start, map[loc.Level].finish);
+            loc.X = RandomInteger(map[loc.Level][loc.Y].start, map[loc.Level][loc.Y].finish);
+        until (MAP_Empty == map[loc.Level][loc.Y][loc.X].Contents);
+    end;
+
+################################################################################
+
+declare function MAP_FindCellOnLevel(&map, &loc, &celltype)
+    begin
+        for loc.Y = map[loc.Level].start to map[loc.Level].finish
+            for loc.X = map[loc.Level][loc.Y].start to map[loc.Level][loc.Y].finish
+                if celltype == map[loc.Level][loc.Y][loc.X].Contents then
+                    return loc;
+                    
+        loc.X = -1;
+        loc.Y = -1;
+        
+        return loc;
+    end;
+    
+declare function MAP_FindStairsDownOnLevel(&map, &lvl)
+    begin
+        declare LocationT as loc;
+        loc.Level = lvl;
+    
+        return MAP_FindCellOnLevel(map, loc, MAP_StairsDown);
+    end;
+    
+declare function MAP_FindStairsUpOnLevel(&map, &lvl)
+    begin
+        declare LocationT as loc;
+        loc.Level = lvl;
+    
+        return MAP_FindCellOnLevel(map, loc, MAP_StairsUp);
+    end;
+    
+declare function MAP_FindExit(&map)
+    begin
+        declare LocationT as loc;
+        loc.Level = 1;
+    
+        return MAP_FindCellOnLevel(map, loc, MAP_Exit);
+    end;
+
+################################################################################
+
+declare function MAP_PrintMapCell(&cell, &showvisitedonly)
+    begin
+        if showvisitedonly then
+            begin
+                if not cell.Visited then
+                    begin
+                        Print(" ?");
+                        
+                        return `NULL;
+                    end;
+            end;
+            
+        switch cell.Contents
+            MAP_Empty:
+                Print(" .");
+                
+            MAP_Encounter:
+                Print(" M");
+                
+            MAP_Chest:
+                Print(" C");
+                
+            MAP_Book:
+                Print(" B");
+                
+            MAP_Pool:
+                Print(" P");
+                
+            MAP_Vendor:
+                Print(" V");
+                
+            MAP_StairsUp:
+                Print(" U");
+                
+            MAP_StairsDown:
+                Print(" D");
+                
+            MAP_Exit:
+                Print(" X");
+                
+            otherwise:
+                Print(" !");
+            
+        end;
+            
+        return `NULL;
+    end;
+    
+declare function MAP_PrintMapLevel(&map, &lvl, &showvisitedonly, &loc)
+    begin
+        declare integer as x;
+        declare integer as y;
+        
+        for y = map[lvl].start to map[lvl].finish
+            begin
+                for x = map[lvl][y].start to map[lvl][y].finish
+                    if (lvl != loc.Level) or (x != loc.X) or (y != loc.Y) then
+                        MAP_PrintMapCell(map[lvl][y][x], showvisitedonly);
+                    else
+                        Print(".*");
+                    
+                Println(".");
+            end;
+            
+        return `NULL;
+    end;
+    
+declare function MAP_PrintMap(&map, &showvisitedonly, &loc)
+    begin
+        declare integer as lvl;
+        
+        for lvl = map.start to map.finish
+            begin
+                Println("Level " + lvl + ":");
+                MAP_PrintMapLevel(map, lvl, showvisitedonly, loc);
+                Newln();
+                Newln();
+            end;
+            
+        return `NULL;
+    end;
+
+################################################################################
+
+declare integer as BOOK_IN_CELL_READ = 8;
+lock BOOK_IN_CELL_READ;
+
+declare integer as CHEST_IN_CELL_OPENED = 9;
+lock CHEST_IN_CELL_OPENED;
+
+declare integer as POOL_IN_CELL_BATHED_IN = 10;
+lock POOL_IN_CELL_BATHED_IN;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

@@ -1,0 +1,33 @@
+
+declare function ArrayAsString(&A)
+    begin
+        declare integer as i;
+        declare string as str;
+        
+        str = "{ ";
+        for i = A.start to A.finish
+            str = str + (AsString(A[i]) + "  ");
+        str = str + " }";
+        
+        return str;
+    end;
+
+declare string as STR = "This is a string.";
+lock STR;
+
+Newln();
+Println(STR);
+Newln();
+
+Println("First char...");
+Println("    Ord(STR) = " + Ord(STR));
+Println("    Chr(Ord(STR)) = " + Chr(Ord(STR)));
+
+Println("Multiple chars...");
+Println("    Ord(STR) = " + ArrayAsString(Ord(STR, STRMULTIPLE)));
+Println("    Chr(Ord(STR)) = " + Chr(Ord(STR, STRMULTIPLE), STRMULTIPLE));
+
+
+
+Newln();
+

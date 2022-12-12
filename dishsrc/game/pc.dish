@@ -1,0 +1,457 @@
+import "attr.dish";
+import "item.dish";
+import "random.dish";
+import "spells.dish";
+import "ui.dish";
+
+################################################################################
+
+declare function XpForLevel(&lvl)
+    if lvl <= 1 then
+        return 0;
+    else
+        return 100 * 3 * 2 ^ (lvl - 2) / 4;
+
+################################################################################
+
+#
+#  Character structures
+#
+
+declare type structure
+    declare string as Name;
+    
+    declare integer as XP;
+    declare integer as Level;
+    
+    declare PhyAttributeSetT as PhyAttr;
+    declare SaveAttributeSetT as SaveAttr;
+    
+    declare integer as HP;
+    declare integer as MaxHP;
+    
+    declare integer as MP;
+    declare integer as MaxMP;
+    
+    declare integer as Flares;
+    
+    declare integer as Gold;
+    
+    declare integer as Food;
+    
+    declare integer as EqWeapon;
+    declare integer as EqArmor;
+    declare integer as EqMisc;
+    
+    declare SpellBookT as SpellBook;
+end as CharacterT;
+
+################################################################################
+
+declare function PhyDamageBonusPC(&pc)
+    return PhyDamageBonusAttr(pc.PhyAttr);
+
+declare function ToHitBonusPC(&pc)
+    return (
+        PhyDamageBonusAttr(pc.PhyAttr) + 
+        WeaponList[pc.EqWeapon].ToHitBonus + 
+        ArmorList[pc.EqArmor].ToHitBonus + 
+        MiscItemList[pc.EqMisc].ToHitBonus
+    );
+
+declare function DefendBonusPC(&pc)
+    return (
+        DefendBonusAttr(pc.PhyAttr) + 
+        ArmorList[pc.EqArmor].DefenseBonus + 
+        MiscItemList[pc.EqMisc].DefenseBonus
+    );
+
+declare function HitPointBonusPC(&pc)
+    return HitPointBonusAttr(pc.PhyAttr);
+
+declare function MagicPointBonusPC(&pc)
+    return MagicPointBonusAttr(pc.PhyAttr);
+    
+declare function CastSpellSuccessChancePC(&pc)
+    return CastSpellSuccessChanceAttr(pc.PhyAttr);
+    
+declare function PhyDamageAdjPC(&pc)
+    return ArmorList[pc.EqArmor].PhyDamageAdj + MiscItemList[pc.EqMisc].PhyDamageAdj;
+    
+declare function FireDamageAdjPC(&pc)
+    return ArmorList[pc.EqArmor].FireDamageAdj + MiscItemList[pc.EqMisc].FireDamageAdj;
+    
+declare function ColdDamageAdjPC(&pc)
+    return ArmorList[pc.EqArmor].ColdDamageAdj + MiscItemList[pc.EqMisc].ColdDamageAdj;
+    
+declare function ElectricDamageAdjPC(&pc)
+    return ArmorList[pc.EqArmor].ElectricDamageAdj + MiscItemList[pc.EqMisc].ElectricDamageAdj;
+    
+declare function MagicDamageAdjPC(&pc)
+    return ArmorList[pc.EqArmor].MagicDamageAdj + MiscItemList[pc.EqMisc].MagicDamageAdj;
+    
+declare function DetectTrapBonusPC(&pc)
+    return DetectTrapBonusAttr(pc.PhyAttr);
+    
+declare function DisarmTrapBonusPC(&pc)
+    return DisarmTrapBonusAttr(pc.PhyAttr);
+    
+declare function FleeBonusPC(&pc)
+    return FleeBonusAttr(pc.PhyAttr);
+    
+################################################################################
+
+declare function XpForNextLevelPC(&pc)
+    return XpForLevel(pc.Level + 1);
+    
+declare function IncrementXpPC(&pc)
+    begin
+        declare boolean as level_passed = false;
+        
+        Inc(pc.XP, XpThisRound);
+        XpThisRound = 0;
+        
+        if pc.XP >= XpForNextLevelPC(pc) then
+            begin
+                declare string as message = pc.Name + " has advanced to the next level!";
+                declare integer as luck_chance = pc.PhyAttr[ATTR_Luck].Value / 10;
+                
+                declare integer as hpinc = D4(2) + HitPointBonusPC(pc);
+                if TestChance(luck_chance) then
+                    Inc(hpinc);
+                if hpinc < 1 then
+                    hpinc = 1;
+                message = message + " Gained " + hpinc + " HP.";
+                
+                declare integer as mpinc = D6() + MagicPointBonusPC(pc);
+                if TestChance(luck_chance) then
+                    Inc(mpinc);
+                if mpinc < 1 then
+                    mpinc = 1;
+                message = message + " Gained " + mpinc + " MP.";
+                
+                declare integer as strinc = 0;
+                if TestChance((100 - pc.PhyAttr[ATTR_Strength].Value) + luck_chance) then
+                    begin
+                        strinc = D4();
+                        message = message + " Gained " + strinc + " strength.";
+                    end;
+                
+                declare integer as intinc = 0;
+                if TestChance((100 - pc.PhyAttr[ATTR_Intelligence].Value) + luck_chance) then
+                    begin
+                        intinc = D4();
+                        message = message + " Gained " + intinc + " intelligence.";
+                    end;
+                
+                declare integer as pieinc = 0;
+                if TestChance((100 - pc.PhyAttr[ATTR_Piety].Value) + luck_chance) then
+                    begin
+                        pieinc = D4();
+                        message = message + " Gained " + pieinc + " piety.";
+                    end;
+                
+                declare integer as dexinc = 0;
+                if TestChance((100 - pc.PhyAttr[ATTR_Dexterity].Value) + luck_chance) then
+                    begin
+                        dexinc = D4();
+                        message = message + " Gained " + dexinc + " dexterity.";
+                    end;
+                
+                declare integer as coninc = 0;
+                if TestChance((100 - pc.PhyAttr[ATTR_Constitution].Value) + luck_chance) then
+                    begin
+                        coninc = D4();
+                        message = message + " Gained " + coninc + " constitution.";
+                    end;
+                
+                declare integer as chrinc = 0;
+                if TestChance((100 - pc.PhyAttr[ATTR_Charisma].Value) + luck_chance) then
+                    begin
+                        chrinc = D4();
+                        message = message + " Gained " + chrinc + " charisma.";
+                    end;
+                
+                declare integer as perinc = 0;
+                if TestChance((100 - pc.PhyAttr[ATTR_Perception].Value) + luck_chance) then
+                    begin
+                        perinc = D4();
+                        message = message + " Gained " + perinc + " perception.";
+                    end;
+                    
+                Inc(pc.Level);
+                
+                Inc(pc.HP, hpinc);
+                Inc(pc.MaxHP, hpinc);
+                
+                Inc(pc.MP, mpinc);
+                Inc(pc.MaxMP, mpinc);
+                
+                Inc(pc.PhyAttr[ATTR_Strength].Value, strinc);
+                Inc(pc.PhyAttr[ATTR_Intelligence].Value, intinc);
+                Inc(pc.PhyAttr[ATTR_Piety].Value, pieinc);
+                Inc(pc.PhyAttr[ATTR_Dexterity].Value, dexinc);
+                Inc(pc.PhyAttr[ATTR_Constitution].Value, coninc);
+                Inc(pc.PhyAttr[ATTR_Charisma].Value, chrinc);
+                Inc(pc.PhyAttr[ATTR_Perception].Value, perinc);
+                
+                UI_DialogBox(message, "Press any key...", STRPRINTABLECHARS);
+                
+                level_passed = true;
+            end;
+            
+        return level_passed;
+    end;
+    
+################################################################################
+
+declare function ApplyDamageToPC(&pc, &dmg)
+    begin
+        if (dmg.PhyDamage > 0) then
+            begin
+                declare reference damage = dmg.PhyDamage - PhyDamageAdjPC(pc);
+                
+                if damage < 0 then
+                    damage = 0;
+                
+                dmg.PhyDamage = damage;
+            end;
+        
+        if (dmg.FireDamage > 0) then
+            begin
+                declare reference damage = dmg.FireDamage;
+                
+                if TestAtribute(pc.SaveAttr[SAVE_SaveVsFire]) then
+                    damage = damage / 2;
+                
+                if damage < 0 then
+                    damage = 0;
+                
+                dmg.FireDamage = damage;
+            end;
+        
+        if (dmg.PoisonDamage > 0) then
+            begin
+                declare reference damage = dmg.PoisonDamage;
+                
+                if TestAtribute(pc.SaveAttr[SAVE_SaveVsPoison]) then
+                    damage = damage / 2;
+                
+                if damage < 0 then
+                    damage = 0;
+                
+                dmg.PoisonDamage = damage;
+            end;
+        
+        if (dmg.ColdDamage > 0) then
+            begin
+                declare reference damage = dmg.ColdDamage;
+                
+                if TestAtribute(pc.SaveAttr[SAVE_SaveVsCold]) then
+                    damage = damage / 2;
+                
+                if damage < 0 then
+                    damage = 0;
+                
+                dmg.ColdDamage = damage;
+            end;
+        
+        if (dmg.ElectricDamage > 0) then
+            begin
+                declare reference damage = dmg.ElectricDamage;
+                
+                if TestAtribute(pc.SaveAttr[SAVE_SaveVsElectric]) then
+                    damage = damage / 2;
+                
+                if damage < 0 then
+                    damage = 0;
+                
+                dmg.ElectricDamage = damage;
+            end;
+        
+        if (dmg.MagicDamage > 0) then
+            begin
+                declare reference damage = dmg.MagicDamage;
+                
+                if TestAtribute(pc.SaveAttr[SAVE_SaveVsMagic]) then
+                    damage = damage / 2;
+                
+                if damage < 0 then
+                    damage = 0;
+                
+                dmg.MagicDamage = damage;
+            end;
+        
+        declare reference damage = SumDamage(dmg);
+        
+        Dec(pc.HP, damage);
+        if (pc.HP < 0) then
+            pc.HP = 0;
+    end;
+
+################################################################################
+
+declare function RollCharacter(&ch, &name)
+    begin
+        ch.Name = name;
+        
+        ch.XP = 0;
+        ch.Level = 1;
+        
+        #
+        #   Roll attributes
+        #
+        
+        RollPhyAttributesPC(ch);
+        
+        #
+        #   Roll saving throws
+        #
+        
+        RollSaveAttributesPC(ch);
+        
+        #
+        #   Roll hit-points
+        #
+        
+        ch.MaxHP = 10 + D4(5) + HitPointBonusPC(ch);
+        ch.HP = ch.MaxHP;
+        
+        #
+        #   Roll magic-points
+        #
+        
+        ch.MaxMP = D4(3) + MagicPointBonusPC(ch);
+        ch.MP = ch.MaxMP;
+        
+        #
+        #   Roll the number of flares.
+        #
+        
+        switch D8()
+            1, 2, 3, 4:
+                ch.Flares = D2();
+                
+            5, 6, 7:
+                ch.Flares = D4();
+                
+            8:
+                ch.Flares = D4(2);
+                
+        end;
+        
+        #
+        #   Roll the number of gold pieces.
+        #
+        
+        switch D6()
+            1, 2, 3:
+                ch.Gold = 0;
+                
+            4, 5:
+                ch.Gold = D4();
+                
+            6:
+                ch.Gold = D4(2);
+                
+        end;
+        
+        #
+        #   Roll the amount of food.
+        #
+        
+        switch D6()
+            1, 2, 3:
+                ch.Food = D2();
+                
+            4, 5:
+                ch.Food = D2(2);
+                
+            6:
+                ch.Food = D2(3);
+                
+        end;
+        
+        #
+        #   Equip items
+        #
+        
+        ch.EqWeapon = WEAPON_Hands;
+        ch.EqArmor = ARMOR_Clothes;
+        ch.EqMisc = MISC_None;
+    end;
+    
+declare function PrintWeapon(&weapon)
+    begin
+        Println(weapon.Name);
+    end;
+    
+declare function PrintArmor(&armor)
+    begin
+        Println(armor.Name);
+    end;
+    
+declare function PrintMiscelaneous(&misc)
+    begin
+        Println(misc.Name);
+    end;
+
+declare function PrintCharacter(&ch)
+    begin
+        declare integer as i;
+        
+        Println(RightJustify(17, "Name") + " : " + ch.Name);
+        
+        Newln();
+        
+        Println(RightJustify(17, "Level") + " : " + ch.Level);
+        Println(RightJustify(17, "XP") + " : " + ch.XP + " (" + XpForNextLevelPC(ch) + ")");
+        
+        Newln();
+        
+        Println(RightJustify(17, "Gold") + " : " + ch.Gold);
+        Println(RightJustify(17, "Flares") + " : " + ch.Flares);
+        Println(RightJustify(17, "Food") + " : " + ch.Food);
+        
+        Newln();
+        
+        Println(RightJustify(17, "Hit Points") + " : " + ch.HP + " / " + ch.MaxHP);
+        Println(RightJustify(17, "Magic Points") + " : " + ch.MP + " / " + ch.MaxMP);
+        
+        Newln();
+        
+        for i = 0 to ATTR_Num - 1
+            Println(RightJustify(17, ch.PhyAttr[i].Name) + " : " + ch.PhyAttr[i].Value);
+        
+        Newln();
+        
+        for i = 1 to SAVE_Num - 1
+            Println(RightJustify(17, ch.SaveAttr[i].Name) + " : " + ch.SaveAttr[i].Value);
+        
+        Newln();
+        
+        Print("           Weapon : ");
+        PrintWeapon(WeaponList[ch.EqWeapon]);
+        Print("            Armor : ");
+        PrintArmor(ArmorList[ch.EqArmor]);
+        Print("       Misc. Item : ");
+        PrintMiscelaneous(MiscItemList[ch.EqMisc]);
+    end;
+    
+################################################################################
+
+declare CharacterT as PC;
+
+declare integer as XpThisRound = 0;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

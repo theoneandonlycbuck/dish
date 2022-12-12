@@ -1,0 +1,21 @@
+Println("1");
+
+declare function Square(x)
+    begin
+        Println(x * x);
+    end;
+    
+Println("2");
+
+declare integer as x;
+x = 10;
+lock x;
+    
+Println("3");
+
+Square(x);
+    
+Println("4");
+
+Println("PATH = " + GetEnvironmentVariable("PATH"));
+

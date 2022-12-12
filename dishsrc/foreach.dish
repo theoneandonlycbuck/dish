@@ -1,0 +1,38 @@
+declare array[1 to 10] of integer as A;
+declare dictionary as D;
+
+declare integer as count = 0;
+
+foreach &i in A
+    i = Inc(count);
+
+declare integer as i;
+for i = 1 to 10
+    Println(i + ". " + A[i]);
+    
+Newln();
+Newln();
+Println("+--------+");
+Newln();
+Newln();
+
+D["a"] = 1;
+D["b"] = 2;
+D["c"] = 3;
+D["d"] = 4;
+D["e"] = 5;
+
+foreach &i in D
+    begin
+        i.value = 2;
+    
+        Println(i.key + " : " + i.value);
+    end;
+    
+Newln();
+
+foreach &i in D
+    Println(i.key + " : " + i.value);
+    
+Newln();
+

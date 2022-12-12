@@ -1,0 +1,658 @@
+import "gameargs.dish";
+import "item.dish";
+import "map.dish";
+import "pc.dish";
+
+################################################################################
+
+declare integer as UI_MIN_TERMINAL_X = 80;
+lock UI_MIN_TERMINAL_X;
+
+declare integer as UI_MIN_TERMINAL_Y = 26;
+lock UI_MIN_TERMINAL_Y;
+
+declare integer as UI_PC_COLUMN_TITLE_WIDTH = 10;
+lock UI_PC_COLUMN_TITLE_WIDTH;
+
+declare integer as UI_MAXIMUM_DIALOG_WIDTH = 40;
+lock UI_MAXIMUM_DIALOG_WIDTH;
+
+declare real as GREEN_YELLOW_RATIO_THRESHOLD = 0.8;
+lock GREEN_YELLOW_RATIO_THRESHOLD;
+
+declare real as YELLOW_RED_RATIO_THRESHOLD = 0.3;
+lock YELLOW_RED_RATIO_THRESHOLD;
+
+################################################################################
+
+declare function UI_SetRatioColor(&ratio)
+    begin
+        if ratio < YELLOW_RED_RATIO_THRESHOLD then
+            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+            
+        else if ratio < GREEN_YELLOW_RATIO_THRESHOLD then
+            TEXTIO_SetForegroundColor(TEXTIO_COLOR_YELLOW);
+            
+        else
+            TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+    end;
+
+declare function UI_PrintRatio(&val, &maxval)
+    begin
+        declare real as denom = AsReal(maxval);
+    
+        if 0.0 != denom then
+            UI_SetRatioColor(AsReal(val) / denom);  
+        else
+            UI_SetRatioColor(0);
+            
+        Print(val + " / " + maxval);
+    end;
+    
+declare function UI_DialogBox(msg, &prompt, &allowable)
+    begin
+        declare integer as i;
+        declare reference strarray = {};
+        declare string as message = msg;
+        
+        while message.length > 0 do
+            begin
+                declare integer as index = UI_MAXIMUM_DIALOG_WIDTH;
+                
+                if index < message.length then
+                    begin
+                        if Ord(" ") != message[index] then
+                            index = StrFindLastOf(message, " ", index, true);
+                        
+                        Append(strarray, StrLeft(message, index));
+                        message = StrRight(message, index + 1);
+                    end;
+                else
+                    begin
+                        Append(strarray, message);
+                        message = "";
+                    end;
+            end;
+        
+        Append(strarray, "");
+        Append(strarray, CenterJustify(UI_MAXIMUM_DIALOG_WIDTH, prompt));
+    
+        declare integer as width = 0;
+        for i = strarray.start to strarray.finish
+            if strarray[i].length > width then
+                width = strarray[i].length;
+        width = width + 6;
+        lock width;
+        
+        declare integer as height = strarray.finish + 4;
+        lock height;
+        
+        declare integer as row = ((UI_MIN_TERMINAL_Y - height) / 2) - 1;
+        declare integer as col = (UI_MIN_TERMINAL_X - width) / 2;
+        
+        TEXTIO_MoveTo(col, Inc(row));
+        TEXTIO_AttrNormal();
+        Print(StrReplicate(width, " "));
+        
+        TEXTIO_MoveTo(col, Inc(row));
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        Print(" +" + StrReplicate(width - 4, "-") + "+ ");
+        
+        for i = strarray.start to strarray.finish
+            begin
+                TEXTIO_MoveTo(col, Inc(row));
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                Print(" | ");
+                
+                TEXTIO_AttrNormal();
+                Print(LeftJustify(width - 6, strarray[i]));
+                
+                TEXTIO_AttrNormal();
+                TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                Print(" | ");
+            end;
+        
+        TEXTIO_MoveTo(col, Inc(row));
+        TEXTIO_AttrNormal();
+        TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+        Print(" +" + StrReplicate(width - 4, "-") + "+ ");
+        
+        TEXTIO_MoveTo(col, Inc(row));
+        TEXTIO_AttrNormal();
+        Print(StrReplicate(width, " "));
+        
+        TEXTIO_Refresh();
+        
+        declare integer as ch;
+        repeat
+            ch = ReadCh();
+        until STRINVALID != StrFind(STRPRINTABLECHARS, ch, 0, false);
+    end;
+    
+declare function UI_ClearInformationArea()
+    begin
+        declare string as blank = StrReplicate(TEXTIO_GetXSize(), " ");
+        declare integer as i;
+    
+        TEXTIO_AttrNormal();
+        for i = 18 to 25 step 1
+            begin
+                TEXTIO_MoveTo(0, i);
+                Print(blank);
+            end;
+    end;
+
+################################################################################
+
+declare function UI_Start()
+    begin
+        TEXTIO_Start();
+        TEXTIO_Refresh();
+        
+        declare integer as xsize = TEXTIO_GetXSize();
+        declare integer as ysize = TEXTIO_GetYSize();
+        
+        if (xsize < UI_MIN_TERMINAL_X) or (ysize < UI_MIN_TERMINAL_Y) then
+            begin
+                TEXTIO_End();
+                Newln();
+                
+                Newln();
+                Println(
+                    "Terminal must be at least " + 
+                    UI_MIN_TERMINAL_X + "x" + UI_MIN_TERMINAL_Y + 
+                    "; existing window is " + xsize + "x" + ysize + "."
+                );
+                Newln();
+                
+                Terminate();
+            end;
+            
+        TEXTIO_SetCursor(TEXTIO_INVISIBLE);
+    end;
+    
+declare function UI_End()
+    begin
+        TEXTIO_End();
+    end;
+
+################################################################################
+
+declare function UI_DrawMainScreenBase()
+    begin
+        TEXTIO_AttrNormal();
+    
+        declare integer as i;
+    
+        for i = 1 to MAP_Y_SIZE + 1
+            begin
+                TEXTIO_MoveTo(41, i - 1);
+                Print("|");
+            end;
+            
+        declare string as locstr = 
+            "Lvl: " + LeftJustify(2, Location.Level) + 
+            ", X: " + LeftJustify(2, Location.X) + 
+            ", Y: " + LeftJustify(2, Location.Y);
+        TEXTIO_MoveTo((41 - locstr.length) / 2, MAP_Y_SIZE);
+        Print(locstr);
+            
+        TEXTIO_MoveTo(0, MAP_Y_SIZE + 1);
+        Print("-----------------------------------------+--------------------------------------");
+    end;
+
+declare function UI_DrawMainScreenMap(&map, &loc)
+    begin
+        declare integer as x;
+        declare integer as y;
+        
+        for y = map[loc.Level].start to map[loc.Level].finish
+            begin
+                TEXTIO_MoveTo(0, y - 1);
+
+                for x = map[loc.Level][y].start to map[loc.Level][y].finish
+                    begin
+                        TEXTIO_AttrNormal();
+                        Print(" ");
+                        
+                        if map[loc.Level][y][x].Visited then
+                            switch map[loc.Level][y][x].Contents
+                                MAP_Empty:
+                                    begin
+                                         if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                    
+                                        Print(".");
+                                    end;
+                                    
+                                MAP_Encounter:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_RED);
+                                            
+                                        Print("M");
+                                    end;
+                                    
+                                MAP_Chest:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_BLUE);
+                                            
+                                        Print("C");
+                                    end;
+                                    
+                                MAP_Book:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_BLUE);
+                                            
+                                        Print("B");
+                                    end;
+                                    
+                                MAP_Pool:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_BLUE);
+                                            
+                                        Print("P");
+                                    end;
+                                    
+                                MAP_Vendor:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_SetForegroundColor(TEXTIO_COLOR_GREEN);
+                                            
+                                        Print("V");
+                                    end;
+                                    
+                                MAP_StairsUp:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                                            
+                                        Print("U");
+                                    end;
+                                    
+                                MAP_StairsDown:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                                            
+                                        Print("D");
+                                    end;
+                                    
+                                MAP_Exit:
+                                    begin
+                                        if (x == loc.X) and (y == loc.Y) then
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_REVERSE);
+                                        else
+                                            TEXTIO_AttrOn(TEXTIO_ATTR_BOLD);
+                                            
+                                        Print("X");
+                                    end;
+                                    
+                                otherwise:
+                                    Assert(false);
+                                
+                            end;
+                        else
+                            Print("?");
+                    end;
+                    
+                TEXTIO_AttrNormal();
+                Print(" ");
+            end;
+    end;
+
+declare function UI_DrawMainScreenCharacter(&pc)
+    begin
+        TEXTIO_AttrNormal();
+        
+        declare integer as row = -1;
+    
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "Name") + " : " + pc.Name);
+        
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "Level") + " : " + pc.Level + " (");
+        UI_PrintRatio(pc.XP - XpForLevel(pc.Level), XpForLevel(pc.Level + 1) - XpForLevel(pc.Level));
+        TEXTIO_AttrNormal();
+        Print(" XP)");
+        
+        Inc(row);
+        
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "HP") + " : ");
+        UI_PrintRatio(pc.HP, pc.MaxHP);
+        TEXTIO_AttrNormal();
+        
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "MP") + " : ");
+        UI_PrintRatio(pc.MP, pc.MaxMP);
+        TEXTIO_AttrNormal();
+        
+        Inc(row);
+        
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "# Flares") + " : " + pc.Flares);
+        
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "Food") + " : " + pc.Food);
+        
+        Inc(row);
+        
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "Gold") + " : " + pc.Gold);
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "Weapon") + " : " + WeaponList[pc.EqWeapon].Name);
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "Armor") + " : " + ArmorList[pc.EqArmor].Name);
+        TEXTIO_MoveTo(43, Inc(row));
+        Print(RightJustify(UI_PC_COLUMN_TITLE_WIDTH, "Misc.") + " : " + MiscItemList[pc.EqMisc].Name);
+        TEXTIO_AttrNormal();
+    end;
+
+declare function UI_DrawMainScreen()
+    begin
+        declare boolean as done = false;
+    
+        while not done do
+            begin
+            
+                #
+                #   Visit the current cell.
+                #
+                
+                Map[Location.Level][Location.Y][Location.X].Visited = true;
+                
+                #
+                #   Increment the PC's XP earned this round.
+                #
+                
+                declare boolean as level_passed = IncrementXpPC(PC);
+                
+                #
+                #   Draw the screen.
+                #
+                
+                TEXTIO_Clear();
+                UI_DrawMainScreenBase();
+                UI_DrawMainScreenMap(Map, Location);
+                UI_DrawMainScreenCharacter(PC);
+                TEXTIO_Refresh();
+                
+                #
+                #   Increment the PC's XP earned this round.
+                #
+                
+                if not level_passed then
+                    begin
+                    
+                        declare boolean as process_input = true;
+                    
+                        #
+                        #   Process the map cell contents.
+                        #
+                        
+                        switch Map[Location.Level][Location.Y][Location.X].Contents
+                            MAP_Empty:
+                                process_input = UI_ProcessEmptyCell(Map[Location.Level][Location.Y][Location.X]);
+                                
+                            MAP_Encounter:
+                                process_input = UI_Combat(Map[Location.Level][Location.Y][Location.X]);
+                                
+                            MAP_Chest:
+                                process_input = UI_ProcessChestCell(Map[Location.Level][Location.Y][Location.X], MAP_LEVEL_SIZE - Location.Level + 1);
+                                
+                            MAP_Book:
+                                process_input = UI_ProcessBookCell(Map[Location.Level][Location.Y][Location.X]);
+                                
+                            MAP_Pool:
+                                process_input = UI_ProcessPoolCell(Map[Location.Level][Location.Y][Location.X]);
+                                
+                            MAP_Vendor:
+                                process_input = UI_ProcessVendor(MAP_LEVEL_SIZE - Location.Level + 1);
+                                
+                            MAP_StairsUp:
+                                process_input = UI_ProcessStairsUpCell(Map[Location.Level][Location.Y][Location.X]);
+                                
+                            MAP_StairsDown:
+                                process_input = UI_ProcessStairsDownCell(Map[Location.Level][Location.Y][Location.X]);
+                                
+                            MAP_Exit:
+                                process_input = UI_ProcessExitCell(Map[Location.Level][Location.Y][Location.X]);
+                                
+                            otherwise:
+                                Assert(false);
+                                
+                        end;
+                        
+                        #
+                        #   Process user input.
+                        #
+                        
+                        if process_input then
+                            switch ToLowerCase(ReadCh())
+                                TEXTIO_KEY_CTRL_F:
+                                    if AllowCheats then
+                                        begin
+                                            declare integer as x;
+                                            declare integer as y;
+                                            
+                                            for y = Map[Location.Level].start to Map[Location.Level].finish
+                                                for x = Map[Location.Level][y].start to Map[Location.Level][y].finish
+                                                    Map[Location.Level][y][x].Visited = true;
+                                        end;
+                            
+                                Ord("c"):
+                                    UI_CastASpell();
+                                
+                                Ord("d"):
+                                    begin
+                                        #
+                                        #   Stairs down
+                                        #
+                                        if MAP_StairsDown == Map[Location.Level][Location.Y][Location.X].Contents then
+                                            Dec(Location.Level);
+                                        else
+                                            UI_DialogBox("The stairs down " + GAME_Direction(MAP_FindStairsDownOnLevel(Map, Location.Level)), "Press any key...", STRPRINTABLECHARS);
+                                    end;
+                                
+                                Ord("f"):
+                                    begin
+                                        #
+                                        #   Ignite a flare
+                                        #
+                                        if PC.Flares > 0 then
+                                            begin
+                                                Dec(PC.Flares);
+                                            
+                                                if (Location.Y > Map[Location.Level].start) then
+                                                    begin
+                                                        if (Location.X > Map[Location.Level][Location.Y - 1].start) then
+                                                            Map[Location.Level][Location.Y - 1][Location.X - 1].Visited = true;
+                                                            
+                                                        Map[Location.Level][Location.Y - 1][Location.X].Visited = true;
+                                                        
+                                                        if (Location.X < Map[Location.Level][Location.Y - 1].finish) then
+                                                            Map[Location.Level][Location.Y - 1][Location.X + 1].Visited = true;
+                                                    end;
+                                                        
+                                                
+                                                if (Location.X > Map[Location.Level][Location.Y].start) then
+                                                    Map[Location.Level][Location.Y][Location.X - 1].Visited = true;
+                                                    
+                                                if (Location.X < Map[Location.Level][Location.Y].finish) then
+                                                    Map[Location.Level][Location.Y][Location.X + 1].Visited = true;
+                                                    
+                                                    
+                                                if (Location.Y < Map[Location.Level].finish) then
+                                                    begin
+                                                        if (Location.X > Map[Location.Level][Location.Y + 1].start) then
+                                                            Map[Location.Level][Location.Y + 1][Location.X - 1].Visited = true;
+                                                            
+                                                        Map[Location.Level][Location.Y + 1][Location.X].Visited = true;
+                                                        
+                                                        if (Location.X < Map[Location.Level][Location.Y + 1].finish) then
+                                                            Map[Location.Level][Location.Y + 1][Location.X + 1].Visited = true;
+                                                    end;
+                                            end;
+                                    end;
+                                
+                                Ord("i"):
+                                    UI_InspectCharacter();
+                                    
+                                Ord("q"):
+                                    begin
+                                        #
+                                        #   Quit the game
+                                        #
+                                        done = true;
+                                    end;
+                                    
+                                Ord("r"):
+                                    if (PC.Food > 0) then
+                                        begin
+                                            declare boolean as rested = false;
+                                            
+                                            if PC.HP < PC.MaxHP then
+                                                begin
+                                                    declare integer as dhp = D2() + HitPointBonusPC(PC);
+                                                    if dhp < 1 then
+                                                        dhp = 1;
+                                                        
+                                                    Inc(PC.HP, dhp);
+                                                    if PC.HP > PC.MaxHP then
+                                                        PC.HP = PC.MaxHP;
+                                                        
+                                                    rested = true;
+                                                end;
+                                                
+                                            if PC.MP < PC.MaxMP then
+                                                begin
+                                                    declare integer as dmp = D2() + MagicPointBonusPC(PC);
+                                                    if dmp < 1 then
+                                                        dmp = 1;
+                                                        
+                                                    Inc(PC.MP, dmp);
+                                                    if PC.MP > PC.MaxMP then
+                                                        PC.MP = PC.MaxMP;
+                                                        
+                                                    rested = true;
+                                                end;
+                                                
+                                            if rested then
+                                                Dec(PC.Food);
+                                            else
+                                                UI_DialogBox(PC.Name + " is already well-rested.", "Press and key...", STRPRINTABLECHARS);
+                                        end;
+                                    else
+                                        UI_DialogBox(PC.Name + " is out of food!", "Press and key...", STRPRINTABLECHARS);
+                                    
+                                Ord("u"):
+                                    begin
+                                        #
+                                        #   Stairs up
+                                        #
+                                        if MAP_StairsUp == Map[Location.Level][Location.Y][Location.X].Contents then
+                                            Inc(Location.Level);
+                                        else
+                                            UI_DialogBox("The stairs up " + GAME_Direction(MAP_FindStairsUpOnLevel(Map, Location.Level)), "Press any key...", STRPRINTABLECHARS);
+                                    end;
+                                    
+                                Ord("x"):
+                                    begin
+                                        #
+                                        #   Exit the castle
+                                        #
+                                        if MAP_Exit == Map[Location.Level][Location.Y][Location.X].Contents then
+                                            begin
+                                                #
+                                                #   !!!
+                                                #
+                                            
+                                                done = true;
+                                            end;
+                                        else
+                                            UI_DialogBox("The exit " + GAME_Direction(MAP_FindExit(Map)), "Press any key...", STRPRINTABLECHARS);
+                                    end;
+                                    
+                                TEXTIO_KEY_UP:
+                                    begin
+                                        #
+                                        #   Move north
+                                        #
+                                        if Location.Y > Map[Location.Level].start then
+                                            Dec(Location.Y);
+                                    end;
+                                    
+                                TEXTIO_KEY_DOWN:
+                                    begin
+                                        #
+                                        #   Move south
+                                        #
+                                        if Location.Y < Map[Location.Level].finish then
+                                            Inc(Location.Y);
+                                    end;
+                                    
+                                TEXTIO_KEY_LEFT:
+                                    begin
+                                        #
+                                        #   Move west
+                                        #
+                                        if Location.X > Map[Location.Level][Location.Y].start then
+                                            Dec(Location.X);
+                                    end;
+                                    
+                                TEXTIO_KEY_RIGHT:
+                                    begin
+                                        #
+                                        #   Move east
+                                        #
+                                        if Location.X < Map[Location.Level][Location.Y].finish then
+                                            Inc(Location.X);
+                                    end;
+                                    
+                                otherwise:
+                                    #  Swalow the keypress.
+                                    ;
+                                    
+                            end;
+                    end;
+            end;
+    end;
+
+################################################################################
+
+import "uicastaspell.dish";
+import "uiinspectpc.dish";
+import "uicellcontents.dish";
+import "uicombat.dish";
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

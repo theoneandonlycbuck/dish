@@ -1,0 +1,45 @@
+
+declare function PrintArray(&A)
+    begin
+        Println("Array of length " + A.length);
+        Println("Array[" + A.start + " to " + A.finish + "] = {");
+        
+        if A.start != A.finish then
+            begin
+                declare integer as i;
+                for i = A.start to A.finish
+                    Println("    " + A[i]);
+            end;
+        
+        Println("}");
+    end;
+
+declare integer as A = 3;
+declare reference B = A;
+
+Print("1. ");
+Println("A = " + A + "; B = " + B);
+
+Print("2. ");
+Inc(A);
+
+Println("A = " + A + "; B = " + B);
+
+Print("3. ");
+Inc(B);
+
+Println("A = " + A + "; B = " + B);
+
+Newln();
+
+declare reference C = {};
+PrintArray(C);
+
+Newln();
+
+Insert(C, 1, 1);
+Append(C, 2);
+PrintArray(C);
+
+Newln();
+

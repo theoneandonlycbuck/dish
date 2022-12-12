@@ -1,0 +1,50 @@
+
+######################
+
+
+if 1 < 2 < 3 then
+    Println("Pass");
+else
+    Println("Fail");
+    
+
+######################
+
+
+if 2 <= 2 < 3 then
+    Println("Pass");
+else
+    Println("Fail");
+    
+
+######################
+
+
+if 3<2<1 then
+    Println("Fail");
+else
+    Println("Pass");
+    
+
+######################
+
+
+if 3<1 then
+    Println("Fail");
+else
+    Println("Pass");
+    
+
+######################
+
+
+if 1 < 2 then
+    Println("Pass");
+else
+    Println("Fail");
+    
+
+######################
+
+Newln();
+

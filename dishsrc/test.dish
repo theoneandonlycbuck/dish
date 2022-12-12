@@ -1,0 +1,20 @@
+while not KeyPressed() do
+    begin
+        Sleep(0.1);
+    end;
+    
+declare string as ch;
+ch = Read();   
+lock ch;
+ 
+Println("Key : " + ch + " (" + Ord(ch) + ")");
+   
+declare integer as i; 
+for i = 1 to 10
+    begin
+        Println(i);
+        Sleep(0.25);
+    end;
+
+Println("Exiting...");
+

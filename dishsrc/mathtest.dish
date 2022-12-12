@@ -1,0 +1,9 @@
+declare integer as max = 10;
+declare integer as min = 1;
+
+declare integer as i;
+for i = 0 to 100
+    Println(i % (max - min + 1) + min);
+
+Newln();
+

@@ -1,0 +1,223 @@
+import "item.dish";
+import "pc.dish";
+
+################################################################################
+
+declare boolean as AllowCheats = false;
+
+declare boolean as PlayTheGame = true;
+
+declare boolean as ShowGameStatistics = false;
+
+################################################################################
+
+declare function CMDLN_DisplayUsage()
+    begin
+        Newln();
+        
+        Println("This is a stupid little dungeon-crawl game to demonstrate the DISH programming");
+        Println("language. Enjoy!");
+        
+        Println();
+        
+        Println("Usage:");
+        Println();
+        Println("    dish game.dish [options]");
+        Println();
+        Println("were [options] is one or more of the following:");
+        Println();
+        Println("    -allspells     : ");
+        Println("    -showmap       : ");
+        Println("    -armpc         : ");
+        Println("    -? or -help    : ");
+        Println("    -gold <amt>    : ");
+        Println("    -flare <num>   : ");
+        Println("    -xp <amt>      : ");
+        Println("    -food <amt>    : ");
+        Println("    -xp <amt>      : ");
+        Println("    -dechp <amt>   : ");
+        Println("    -decmp <amt>   : ");
+        Println("    -allowcheats   : ");
+        Println("    -noplay        : ");
+        Println("    -gamestats     : ");
+        
+        Newln();
+    end;
+    
+declare function CMDLN_AllSpells()
+    begin
+        declare integer as j;
+        
+        for j = SpellList.start to SpellList.finish
+            PC.SpellBook[j] = true;
+    end;
+    
+declare function CMDLN_ShowMap()
+    begin
+        declare integer as lvl;
+        declare integer as x;
+        declare integer as y;
+        
+        for lvl = Map.start to Map.finish
+            for y = Map[lvl].start to Map[lvl].finish
+                for x = Map[lvl][y].start to Map[lvl][y].finish
+                    Map[lvl][y][x].Visited = true;
+    end;
+    
+declare function CMDLN_ArmPC()
+    begin
+        PC.EqWeapon = WEAPON_HolyTerror;
+        PC.EqArmor = ARMOR_HolyProtector;
+        PC.EqMisc = MISC_HolyRoller;
+    end;
+    
+declare function CMDLN_Gold(&gp)
+    PC.Gold = gp;
+    
+declare function CMDLN_Flare(&flares)
+    PC.Flares = flares;
+    
+declare function CMDLN_Experience(&xp)
+    XpThisRound = xp;
+    
+declare function CMDLN_Food(&food)
+    PC.Food = food;
+    
+declare function CMDLN_DecrementHP(&hp)
+    begin
+        Dec(PC.HP, hp);
+        
+        if PC.HP < 0 then
+            PC.HP = 0;
+    end;
+    
+declare function CMDLN_DecrementMP(&mp)
+    begin
+        Dec(PC.MP, mp);
+        
+        if PC.MP < 0 then
+            PC.MP = 0;
+    end;
+    
+declare function CMDLN_AllowCheats()
+    AllowCheats = true;
+    
+declare function CMDLN_NoPlay()
+    PlayTheGame = false;
+    
+declare function CMDLN_ShowGameStatistics()
+    ShowGameStatistics = true;
+
+################################################################################
+
+declare function ProcessCommandLine()
+    if NumCmdLnArgs > 0 then
+        begin
+            declare integer as i = CmdLnArgs.Start;
+            
+            while i <= CmdLnArgs.Finish do
+                begin
+                        
+                    #
+                    #   Give the PC all spells
+                    #
+                    if ("-allspells" == CmdLnArgs[i]) then
+                        CMDLN_AllSpells();
+                        
+                    #
+                    #   Reveal the entire map
+                    #
+                    else if ("-showmap" == CmdLnArgs[i]) then
+                        CMDLN_ShowMap();
+                        
+                    #
+                    #   Arm the PC
+                    #
+                    else if ("-armpc" == CmdLnArgs[i]) then
+                        CMDLN_ArmPC();
+                        
+                    #
+                    #   Display usage information
+                    #
+                    else if ("-?" == CmdLnArgs[i]) or ("-help" == CmdLnArgs[i]) then
+                        begin
+                            CMDLN_DisplayUsage();
+                            Terminate();
+                        end;
+                        
+                    #
+                    #   Set the PC's gold
+                    #
+                    else if ("-gold" == CmdLnArgs[i]) then
+                        CMDLN_Gold(CmdLnArgs[Inc(i)]);
+                        
+                    #
+                    #   Set the PC's number of flares
+                    #
+                    else if ("-flare" == CmdLnArgs[i]) then
+                        CMDLN_Flare(CmdLnArgs[Inc(i)]);
+                        
+                    #
+                    #   Set the PC's number of experience points
+                    #
+                    else if ("-xp" == CmdLnArgs[i]) then
+                        CMDLN_Experience(CmdLnArgs[Inc(i)]);
+                        
+                    #
+                    #   Set the PC's food
+                    #
+                    else if ("-food" == CmdLnArgs[i]) then
+                        CMDLN_Food(CmdLnArgs[Inc(i)]);
+                        
+                    #
+                    #   Decrement the PC's hit points.
+                    #
+                    else if ("-dechp" == CmdLnArgs[i]) then
+                        CMDLN_DecrementHP(CmdLnArgs[Inc(i)]);
+                        
+                    #
+                    #   Decrement the PC's magic points.
+                    #
+                    else if ("-decmp" == CmdLnArgs[i]) then
+                        CMDLN_DecrementMP(CmdLnArgs[Inc(i)]);
+                        
+                    #
+                    #   Allow in-game cheats
+                    #
+                    else if ("-allowcheats" == CmdLnArgs[i]) then
+                        CMDLN_AllowCheats();
+                        
+                    #
+                    #   Only roll the PC and generate the map, do not play the
+                    #   game (useful for performance-testing the interpreter).
+                    #
+                    else if ("-noplay" == CmdLnArgs[i]) then
+                        CMDLN_NoPlay();
+                        
+                    #
+                    #   Show game statistics on exit.
+                    #
+                    else if ("-gamestats" == CmdLnArgs[i]) then
+                        CMDLN_ShowGameStatistics();
+                        
+                    else
+                        begin
+                            Println("Unknown command-line argument: " + CmdLnArgs[i]);
+                            Terminate();
+                        end;
+
+                    Inc(i);                    
+                end;
+        end;
+
+################################################################################
+
+if IsEntryPoint() then
+    begin
+        Println();
+        Println("Please run game.dish to start the game!");
+        Println();
+        
+        Terminate();
+    end;
+

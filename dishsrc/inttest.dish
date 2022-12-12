@@ -1,0 +1,52 @@
+
+Println("Integer math function test code...");
+Newln();
+
+declare integer as i;
+declare integer as n;
+declare integer as p;
+
+
+
+################################################################################
+
+Println("Factorial:");
+for i = 0 to 15
+    Println("    " + i + "! = " + Factorial(i));
+
+################################################################################
+    
+    
+    
+Newln();
+
+
+
+################################################################################
+
+Println("Binomial Coefficiants:");
+for n = 0 to 10
+    begin
+        for p = 0 to n
+            Print(BinomialCoefficient(n, p) + "  ");
+            
+        Newln();
+    end;
+
+################################################################################
+ 
+ 
+    
+Newln();
+
+
+
+################################################################################
+
+Println("GCD(153, 34): " + GreatestCommonDenomonator(153, 34));
+Println("GCD(100, 99): " + GreatestCommonDenomonator(100, 99));
+
+################################################################################
+    
+Newln();
+    

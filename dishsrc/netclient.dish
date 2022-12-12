@@ -1,0 +1,27 @@
+
+Assert(IS_LIB_CORE);
+
+declare array[1 to 10] of String as Commands;
+
+declare integer as ncmds = 1;
+foreach &cmd in Commands
+    begin
+        cmd = "echo This is command #" + ncmds + "\r\n";
+        Inc(ncmds);
+    end;
+    
+    
+
+declare integer as handle = NetworkOpenClientSocket(12345);
+
+foreach &cmd in Commands
+    begin
+        Println("Sending '" + StrTrimLeading(StrTrimTrailing(cmd, STRWHITESPACECHARS), STRWHITESPACECHARS) + "'...");
+        NetworkWriteSocket(handle, cmd);
+        Sleep(1);
+    end;
+
+NetworkWriteSocket(handle, "quit\r\n");
+
+NetworkCloseSocket(handle);
+

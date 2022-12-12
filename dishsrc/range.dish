@@ -1,0 +1,30 @@
+
+################################################################################
+
+declare function ErrorHandler(&err)
+    begin
+        Println("ERROR: " + err);
+    
+        return false;
+    end;
+    
+Println("ERR_ILLEGAL_VALUE = " + ERR_ILLEGAL_VALUE);
+OnErrorPush(ERR_ILLEGAL_VALUE, ErrorHandler_1);
+
+################################################################################
+
+declare type integer(0, 100, ERROR) as PercentageT;
+
+declare PercentageT as pct = 0;
+Println(pct);
+
+Inc(pct);
+Println(pct);
+
+pct = -1;
+Println(pct);
+
+Newln();
+Println("Done.");
+Newln();
+

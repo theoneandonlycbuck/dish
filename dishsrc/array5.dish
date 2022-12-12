@@ -1,0 +1,11 @@
+
+declare reference A = {};
+
+Append(A, 1);
+Append(A, 2);
+Append(A, 3);
+
+Println("A[0] = " + A[0]);
+Println("A[1] = " + A[1]);
+Println("A[2] = " + A[2]);
+

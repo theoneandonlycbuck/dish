@@ -1,0 +1,89 @@
+
+declare function PrintArray(&name, &A)
+    begin
+        declare integer as i;
+        
+        Println(name + " has " + A.length + " elements, from " + A.start + " to " + A.finish + ".");
+        
+        for i = A.start to A.finish
+            Println("    " + name + "[" + i + "] = " + A[i]);
+    end;
+    
+Println("Creating A in ascending order...");
+Println();
+
+declare array[1 to 10] of integer as A;
+declare integer as i;
+
+for i = A.start to A.finish
+    A[i] = i;
+    
+PrintArray("A", A);
+Println();
+    
+Println("Shuffling A...");
+for i = A.start to A.finish
+    Swap(A, i, A.start + (Random() % A.length));
+
+PrintArray("A", A);
+Newln();
+
+for i = A.start to A.finish
+    begin
+        Print("Searching for " + i + "...");
+        
+        declare integer as index = Find(A, i);
+        
+        if (index >= A.start) and (index <= A.finish) then
+            Println(" Found at index " + index);
+        else
+            Println(" Not found (" + index + ")");
+    end;
+
+Newln();
+
+Println("Sorting...");
+Sort(A, SORT_ASCENDING);
+
+PrintArray("A", A);
+Newln();
+
+for i = A.start to A.finish
+    begin
+        Print("Searching for " + i + "...");
+        
+        declare integer as index = FindSorted(A, i, SORT_ASCENDING);
+        
+        if (index >= A.start) and (index <= A.finish) then
+            Println(" Found at index " + index);
+        else
+            Println(" Not found (" + index + ")");
+    end;
+
+Newln();
+
+PrintArray("A", A);
+Newln();
+
+Println("Sorting...");
+Sort(A, SORT_DESCENDING);
+
+Newln();
+
+for i = A.start to A.finish
+    begin
+        Print("Searching for " + i + "...");
+        
+        declare integer as index = FindSorted(A, i, SORT_DESCENDING);
+        
+        if (index >= A.start) and (index <= A.finish) then
+            Println(" Found at index " + index);
+        else
+            Println(" Not found (" + index + ")");
+    end;
+
+Newln();
+
+PrintArray("A", A);
+Newln();
+

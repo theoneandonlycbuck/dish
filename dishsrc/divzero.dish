@@ -1,0 +1,13 @@
+declare function HandleDivideByZeroError(&e)
+    begin
+        Newln();
+        Println("Detected a divide-by-zero!");
+        Newln();
+            
+        return true;
+    end;
+    
+OnErrorPush(ERR_DIVIDE_BY_ZERO, HandleDivideByZeroError_1);
+
+Println("1 / 0 = " + (1 / 0));
+
