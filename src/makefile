@@ -737,7 +737,6 @@ install : all
 remove : clean
 	rm -f $(INSTALL_DIR)/dish
     
-.PHONY: rundemo
 rundemo : all
 	../bin/dish -I../dishsrc/game/ game.dish -allowcheats
 
@@ -749,14 +748,17 @@ rundemo : all
 
 dish : dishconfig.h $(BINS) main.o
 	$(CPP) $(LFLAGS) $(DB_LFLAGS) -o dish main.o $(BINS) $(LIBS)
+	mkdir -p ../bin
 	mv dish ../bin
 	
 libdish.a : dishconfig.h $(BINS) librarydep.o
 	$(AR) rcs libdish.a $(BINS) librarydep.o
+	mkdir -p ../bin
 	mv libdish.a ../bin
 	
 libshdish.so : dishconfig.h $(BINS) librarydep.o
 	$(CPP) -shared -o libshdish.so $(BINS) librarydep.o
+	mkdir -p ../bin
 	mv libshdish.so ../bin
 
 

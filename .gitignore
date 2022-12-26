@@ -1,0 +1,5 @@
+# Ignore .o files...
+**/*.o
+**/*.a
+**/*.so
+bin/dish

@@ -104,6 +104,10 @@ mv libshdish.so ../bin
 cp -f ../bin/dish /usr/bin
 ~/dish/src $
 
+NOTE: Depending on the features configured, the total build-time can take
+several minutes. Of all the files in the build, compiling language.cpp takes
+the longest and it is compiled first in the build 
+
 
 IV.      Running the Demo Applications
 
@@ -119,7 +123,7 @@ and pass the name of the program you wish to execute on the command-line. dish
 applications may be comprised of several source files, so it is usually best to
 run the application from the directory in which all of the application source
 files are installed. But the OS needs to know how to find the interpreter
-executable, /dish/src/dish. This can be accomplished two ways:
+executable, /dish/src/dish. There are two options to accomplish this:
 
 1. You can specify the path to the executable, absolute or relative, on the
    command-line when you invoke the interpreter. For an example, let's run the
@@ -171,3 +175,8 @@ Done.
 
 Then repeat the steps in section III to rebuild the interpreter with the new
 configuration.
+
+
+VI. Final Thoughts
+
+
