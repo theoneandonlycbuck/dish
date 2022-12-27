@@ -10,13 +10,13 @@ II.     Directory Structure
 
 The disk interpreter comes in the following directories:
 
-	\dish\dishsrc		Contains example code for the dish programming language.
+	\dish\dishsrc       Contains example code for the dish programming language.
 	\dish\dishsrc\game	Contains a simple game written in dish.
-	\dish\doc		    Contains documentation for the dish programming language, 
+	\dish\doc           Contains documentation for the dish programming language, 
                         interpreter, and libraries needed by an application
                         incorporating the interpreter. (This is a work-in-
                         progress.)
-	\dish\pldish		Contains examples for embedding the dish interpreter in
+	\dish\pldish        Contains examples for embedding the dish interpreter in
                         another application.
 	\dish\src		    Contains the source files (.h and .cpp) needed to build
                         the dish interpreter and libraries needed by an
@@ -82,7 +82,7 @@ mv dish ../bin
 
 At the end of the build three binary artifacts are present:
 
-	/dish/bin/dish		    The stand-alone dish interpreter.
+	/dish/bin/dish          The stand-alone dish interpreter.
 	/dish/bin/libshdish.so	The shared library required when building the
 	                        interpreter into another application.
 	/dish/bin/libdish.a	    The static library required when building the
@@ -106,7 +106,9 @@ cp -f ../bin/dish /usr/bin
 
 NOTE: Depending on the features configured, the total build-time can take
 several minutes. Of all the files in the build, compiling language.cpp takes
-the longest and it is compiled first in the build 
+the longest and it is compiled first in the build so all of the other files can
+be compiled concurrently with language.cpp if make is invoked with the -j
+option.
 
 
 IV.      Running the Demo Applications
@@ -139,9 +141,11 @@ executable, /dish/src/dish. There are two options to accomplish this:
 
         ~/dish/dishsrc $ dish hello.dish
 
-The entry-point game is /dish/dishsrc/game/game.dish. You can run the game
-either by navigating to the directory /dish/dishsrc/game and type the following
-at the command prompt
+There is a more sophisticated demo application included with the interpreter, a
+game, located in /dish/dishsrc/game. The entry-point game is
+/dish/dishsrc/game/game.dish and can be executed using one of the methods just
+described, or using the makefile. To execute the demo directly, navigate to the
+directory /dish/dishsrc/game and type the following at the command prompt
 
         ~/dish/dishsrc/game $ ../../bin/dish game.dish
 
@@ -149,7 +153,10 @@ if you are using option 1 to invoke the interpreter, or
 
         ~/dish/dishsrc/game $ dish game.dish
 
-if you are using option 2.
+if you are using option 2. Alternatively, the game can be executed from the
+source directory using the makefile:
+
+        ~/dish/src $ make rundemo
 
 
 V.     Configuring the Build
@@ -179,4 +186,6 @@ configuration.
 
 VI. Final Thoughts
 
-
+At this time there is no documentation for the language itself, although it is
+hopefully simple enough that you can pick it up using the examples. If there is
+intrest I may work on User Manual and/or Reference Guide. 
