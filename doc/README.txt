@@ -11,14 +11,14 @@ II.     Directory Structure
 The disk interpreter comes in the following directories:
 
 	\dish\dishsrc       Contains example code for the dish programming language.
-	\dish\dishsrc\game	Contains a simple game written in dish.
+	\dish\dishsrc\game  Contains a simple game written in dish.
 	\dish\doc           Contains documentation for the dish programming language, 
                         interpreter, and libraries needed by an application
                         incorporating the interpreter. (This is a work-in-
                         progress.)
 	\dish\pldish        Contains examples for embedding the dish interpreter in
                         another application.
-	\dish\src		    Contains the source files (.h and .cpp) needed to build
+	\dish\src           Contains the source files (.h and .cpp) needed to build
                         the dish interpreter and libraries needed by an
                         application incorporating the interpreter, and the 
                         makefile.
@@ -83,10 +83,10 @@ mv dish ../bin
 At the end of the build three binary artifacts are present:
 
 	/dish/bin/dish          The stand-alone dish interpreter.
-	/dish/bin/libshdish.so	The shared library required when building the
-	                        interpreter into another application.
-	/dish/bin/libdish.a	    The static library required when building the
-	                        interpreter into another application.
+	/dish/bin/libshdish.so  The shared library required when building the
+                            interpreter into another application.
+	/dish/bin/libdish.a     The static library required when building the
+                            interpreter into another application.
 
 You can also install the interpreter's binaries in /usr/bin directory, making
 them available to all users on Linux computer, by running “make install”.
